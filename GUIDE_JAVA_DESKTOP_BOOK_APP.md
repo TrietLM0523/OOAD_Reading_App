@@ -1145,3 +1145,21 @@ Database → Model → DAO → Service → Controller → FXML UI
 
 Không nên bắt đầu bằng việc kéo thả giao diện quá sớm.  
 Khi database và service đã ổn, việc gắn UI JavaFX vào sẽ dễ hơn nhiều, ít lỗi hơn và bám sát thiết kế OOAD hơn.
+## Sử dụng NetBeans
+
+Dự án được phát triển bằng NetBeans với Maven.
+
+Khuyến nghị:
+- JDK 17 hoặc JDK 21
+- Apache NetBeans bản mới
+- Maven project
+- JavaFX dependency khai báo trong `pom.xml`
+- MySQL/PostgreSQL dùng làm cơ sở dữ liệu
+## Cách chạy project trên NetBeans
+
+1. Mở NetBeans
+2. Chọn File → Open Project
+3. Chọn thư mục project
+4. Chờ Maven tải dependency
+5. Cấu hình database trong `DatabaseConnection.java`
+6. Run project

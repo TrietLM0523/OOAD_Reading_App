@@ -1,0 +1,24 @@
+# Maven / Java build
+target/
+*.class
+*.log
+
+# NetBeans private files
+nbproject/private/
+build/
+dist/
+
+# Local environment
+.env
+
+# App local storage
+data/books/
+data/covers/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
