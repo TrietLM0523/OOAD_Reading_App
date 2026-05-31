@@ -24,14 +24,17 @@ config.local.properties
 
 # =========================
 # App local storage
-# Không đẩy file sách / ảnh bìa thật lên Git
+# Ignore real book/cover files, keep folder placeholders
 # =========================
-data/books/
-data/covers/
+data/books/*
+data/covers/*
+BTL_Book_Reading_App/data/books/*
+BTL_Book_Reading_App/data/covers/*
 
-# Nếu sau này data nằm trong project con thì ignore luôn
-BTL_Book_Reading_App/data/books/
-BTL_Book_Reading_App/data/covers/
+!data/books/.gitkeep
+!data/covers/.gitkeep
+!BTL_Book_Reading_App/data/books/.gitkeep
+!BTL_Book_Reading_App/data/covers/.gitkeep
 
 # =========================
 # Logs
