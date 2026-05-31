@@ -1,24 +1,53 @@
-# Maven / Java build
+# =========================
+# Java / Maven build output
+# =========================
 target/
 *.class
-*.log
+*.jar
+*.war
+*.ear
 
-# NetBeans private files
+# =========================
+# NetBeans
+# =========================
 nbproject/private/
 build/
 dist/
+*.nbattrs
 
-# Local environment
+# =========================
+# Local environment / secrets
+# =========================
 .env
+*.env
+config.local.properties
 
+# =========================
 # App local storage
+# Không đẩy file sách / ảnh bìa thật lên Git
+# =========================
 data/books/
 data/covers/
 
-# IDE
+# Nếu sau này data nằm trong project con thì ignore luôn
+BTL_Book_Reading_App/data/books/
+BTL_Book_Reading_App/data/covers/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# IDE folders
+# =========================
 .idea/
 .vscode/
 
-# OS
+# =========================
+# OS generated files
+# =========================
 .DS_Store
 Thumbs.db
+desktop.ini
