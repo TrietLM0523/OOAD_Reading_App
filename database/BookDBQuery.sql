@@ -202,3 +202,15 @@ GO
 
 SELECT idUser, username, email, role, status, createdAt
 FROM Users;
+
+-- New Admin --
+USE BookReadingDB;
+GO
+
+UPDATE Users
+SET role = 'ADMIN'
+WHERE email = 'admin2@gmail.com';
+
+SELECT idUser, username, email, role, status
+FROM Users
+WHERE email = 'admin2@gmail.com';

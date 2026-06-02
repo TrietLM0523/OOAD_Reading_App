@@ -101,16 +101,15 @@ public class LoginFrame extends JFrame {
             );
 
             if ("ADMIN".equalsIgnoreCase(user.getRole())) {
-                JOptionPane.showMessageDialog(this, "Đi tới giao diện Admin Dashboard.");
+                AdminDashboardFrame adminDashboardFrame = new AdminDashboardFrame(user);
+                adminDashboardFrame.setVisible(true);
             } else {
-                JOptionPane.showMessageDialog(this, "Đi tới giao diện User Home.");
+                UserHomeFrame userHomeFrame = new UserHomeFrame(user);
+                userHomeFrame.setVisible(true);
             }
 
-            // Tạm thời chưa mở màn hình chính.
-            // Sau này sẽ thay bằng:
-            // new AdminDashboardFrame(user).setVisible(true);
-            // hoặc new HomeFrame(user).setVisible(true);
-            // this.dispose();
+            this.dispose();
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(
                     this,
