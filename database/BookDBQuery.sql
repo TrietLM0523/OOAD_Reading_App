@@ -196,3 +196,9 @@ WHERE TABLE_NAME = 'Books';
 SELECT COLUMN_NAME, DATA_TYPE
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = 'ReadingProcesses';
+--- TEST LOGIN ---
+USE BookReadingDB;
+GO
+
+SELECT idUser, username, email, role, status, createdAt
+FROM Users;
