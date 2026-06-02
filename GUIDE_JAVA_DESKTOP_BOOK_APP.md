@@ -363,12 +363,12 @@ Thumbs.db
 
 | Milestone | Nội dung | Trạng thái |
 |---|---|---|
-| M0 | Chuẩn bị project, Maven, Git | Đang làm |
-| M1 | Tạo database SQL Server | Đang làm |
-| M2 | Kết nối Java ↔ SQL Server | Chưa làm |
-| M3 | Đăng nhập/đăng ký | Chưa làm |
-| M4 | Giao diện chính User/Admin | Chưa làm |
-| M5 | Admin quản lý sách | Chưa làm |
+| M0 | Chuẩn bị project, Maven, Git | Hoàn thành |
+| M1 | Tạo database SQL Server | Hoàn thành |
+| M2 | Kết nối Java ↔ SQL Server | Hoàn thành |
+| M3 | Đăng nhập/đăng ký | Hoàn thành |
+| M4 | Giao diện chính User/Admin | Hoàn thành |
+| M5 | Admin quản lý sách | Đang làm |
 | M6 | User tìm kiếm/xem chi tiết sách | Chưa làm |
 | M7 | Thư viện cá nhân + tiến độ đọc | Chưa làm |
 | M8 | Đọc PDF cơ bản | Chưa làm |
@@ -394,8 +394,8 @@ Tạo project NetBeans Maven và chạy được cửa sổ Swing mẫu.
 - [x] Sửa `pom.xml`
 - [x] Maven `Clean and Build` thành công
 - [x] Thêm FlatLaf, MigLayout, JDBC, BCrypt, PDFBox
-- [ ] Tạo `.gitignore` ở thư mục cha
-- [ ] Commit milestone M0
+- [x] Tạo `.gitignore` ở thư mục cha
+- [x] Commit milestone M0
 
 ### Commit gợi ý
 
@@ -415,20 +415,20 @@ Tạo database `BookReadingDB` và các bảng chính.
 
 ### Checklist
 
-- [ ] Tạo folder `database/`
-- [ ] Tạo `database/schema.sql`
-- [ ] Tạo `database/seed.sql`
-- [ ] Tạo database `BookReadingDB`
-- [ ] Tạo bảng `Users`
-- [ ] Tạo bảng `Genres`
-- [ ] Tạo bảng `Books`
-- [ ] Tạo bảng `ReadingProcess`
-- [ ] Tạo bảng `Reviews`
-- [ ] Tạo bảng `Quotes`
-- [ ] Tạo bảng `Notifications`
-- [ ] Insert dữ liệu mẫu
-- [ ] Test bằng `SELECT * FROM Users`
-- [ ] Commit milestone M1
+- [x] Tạo folder `database/`
+- [x] Tạo `database/schema.sql`
+- [x] Tạo `database/seed.sql`
+- [x] Tạo database `BookReadingDB`
+- [x] Tạo bảng `Users`
+- [x] Tạo bảng `Genres`
+- [x] Tạo bảng `Books`
+- [x] Tạo bảng `ReadingProcess`
+- [x] Tạo bảng `Reviews`
+- [x] Tạo bảng `Quotes`
+- [x] Tạo bảng `Notifications`
+- [x] Insert dữ liệu mẫu
+- [x] Test bằng `SELECT * FROM Users`
+- [x] Commit milestone M1
 
 ### Commit gợi ý
 
@@ -448,12 +448,12 @@ Java app kết nối được tới `BookReadingDB`.
 
 ### Checklist
 
-- [ ] Tạo package `config`
-- [ ] Tạo `DatabaseConnection.java`
-- [ ] Sửa username/password SQL Server
-- [ ] Test `SELECT COUNT(*) FROM Users`
-- [ ] In ra console kết nối thành công
-- [ ] Commit milestone M2
+- [x] Tạo package `config`
+- [x] Tạo `DatabaseConnection.java`
+- [x] Sửa username/password SQL Server
+- [x] Test `SELECT COUNT(*) FROM Users`
+- [x] In ra console kết nối thành công
+- [x] Commit milestone M2
 
 ### Commit gợi ý
 
@@ -484,16 +484,16 @@ view/RegisterFrame.java
 
 ### Checklist
 
-- [ ] Tạo model `User`
-- [ ] Tạo `PasswordUtil` dùng BCrypt
-- [ ] Tạo `UserDAO.findByEmail()`
-- [ ] Tạo `UserDAO.insertUser()`
-- [ ] Tạo `AuthService.login()`
-- [ ] Tạo `AuthService.register()`
-- [ ] Tạo giao diện `LoginFrame`
-- [ ] Tạo giao diện `RegisterFrame`
-- [ ] Login phân biệt `USER` và `ADMIN`
-- [ ] Commit milestone M3
+- [x] Tạo model `User`
+- [x] Tạo `PasswordUtil` dùng BCrypt
+- [x] Tạo `UserDAO.findByEmail()`
+- [x] Tạo `UserDAO.insertUser()`
+- [x] Tạo `AuthService.login()`
+- [x] Tạo `AuthService.register()`
+- [x] Tạo giao diện `LoginFrame`
+- [x] Tạo giao diện `RegisterFrame`
+- [x] Login phân biệt `USER` và `ADMIN`
+- [x] Commit milestone M3
 
 ### Commit gợi ý
 
@@ -521,12 +521,12 @@ util/SessionManager.java
 
 ### Checklist
 
-- [ ] Tạo `SessionManager`
-- [ ] Login USER mở `UserHomeFrame`
-- [ ] Login ADMIN mở `AdminDashboardFrame`
-- [ ] Có nút đăng xuất
-- [ ] Có menu điều hướng
-- [ ] Commit milestone M4
+- [x] Tạo `SessionManager`
+- [x] Login USER mở `UserHomeFrame`
+- [x] Login ADMIN mở `AdminDashboardFrame`
+- [x] Có nút đăng xuất
+- [x] Có menu điều hướng
+- [x] Commit milestone M4
 
 ### Commit gợi ý
 
