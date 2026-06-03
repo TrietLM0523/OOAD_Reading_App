@@ -214,3 +214,43 @@ WHERE email = 'admin2@gmail.com';
 SELECT idUser, username, email, role, status
 FROM Users
 WHERE email = 'admin2@gmail.com';
+
+--- sample data ---
+USE BookReadingDB;
+GO
+
+INSERT INTO Genres (name, description)
+VALUES
+(N'Văn học Nhật Bản', N'Các tác phẩm văn học Nhật Bản hiện đại và kinh điển'),
+(N'Light Novel / Fantasy', N'Tiểu thuyết nhẹ, kỳ ảo, phiêu lưu và thế giới giả tưởng'),
+(N'Văn học kinh điển', N'Các tác phẩm có giá trị văn học lâu dài, thường được nghiên cứu và tái bản nhiều lần');
+GO
+
+-- Sách mẫu, chưa cần file thật
+INSERT INTO Books (
+    title, author, description, idGenre,
+    coverPath, filePath, fileType, avgRating, totalPages
+)
+VALUES
+(
+    N'Kokoro',
+    N'Natsume Soseki',
+    N'Tác phẩm xoay quanh mối quan hệ giữa một người thanh niên và Sensei, qua đó khắc họa sự cô độc, mặc cảm tội lỗi và những biến chuyển tinh thần của con người Nhật Bản trong thời kỳ hiện đại hóa.',
+    1,
+    NULL, NULL, NULL, 0, 0
+),
+(
+    N'Re:Zero - Arc 4',
+    N'Tappei Nagatsuki',
+    N'Phần truyện tiếp tục hành trình của Subaru trong một thế giới giả tưởng khắc nghiệt, nơi năng lực quay lại sau cái chết buộc nhân vật phải đối mặt với mất mát, lựa chọn và trách nhiệm để bảo vệ những người quan trọng.',
+    2,
+    NULL, NULL, NULL, 0, 0
+),
+(
+    N'Wagahai wa Neko de Aru',
+    N'Natsume Soseki',
+    N'Tác phẩm được kể dưới góc nhìn châm biếm của một con mèo, qua đó quan sát đời sống con người, tầng lớp trí thức và xã hội Nhật Bản thời Minh Trị với giọng văn hài hước nhưng sâu sắc.',
+    3,
+    NULL, NULL, NULL, 0, 0
+);
+GO

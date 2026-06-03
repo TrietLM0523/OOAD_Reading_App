@@ -101,9 +101,10 @@ public class AdminDashboardFrame extends JFrame {
                 -> JOptionPane.showMessageDialog(this, "Dashboard admin sẽ làm ở milestone sau.")
         );
 
-        btnManageBooks.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Quản lý sách sẽ làm ở milestone sau.")
-        );
+        btnManageBooks.addActionListener(e -> {
+            AdminBookManagementFrame frame = new AdminBookManagementFrame();
+            frame.setVisible(true);
+        });
 
         btnManageUsers.addActionListener(e
                 -> JOptionPane.showMessageDialog(this, "Quản lý người dùng sẽ làm ở milestone sau.")

@@ -368,8 +368,8 @@ Thumbs.db
 | M2 | Kết nối Java ↔ SQL Server | Hoàn thành |
 | M3 | Đăng nhập/đăng ký | Hoàn thành |
 | M4 | Giao diện chính User/Admin | Hoàn thành |
-| M5 | Admin quản lý sách | Đang làm |
-| M6 | User tìm kiếm/xem chi tiết sách | Chưa làm |
+| M5 | Admin quản lý sách | Hoàn thành |
+| M6 | User tìm kiếm/xem chi tiết sách | Đang làm |
 | M7 | Thư viện cá nhân + tiến độ đọc | Chưa làm |
 | M8 | Đọc PDF cơ bản | Chưa làm |
 | M9 | Đánh giá + bình luận | Chưa làm |
@@ -557,11 +557,11 @@ view/BookManagementFrame.java
 
 ### Checklist
 
-- [ ] Hiển thị danh sách sách bằng `JTable`
-- [ ] Thêm sách mới
-- [ ] Sửa thông tin sách
-- [ ] Xóa sách
-- [ ] Tìm kiếm sách
+- [x] Hiển thị danh sách sách bằng `JTable`
+- [x] Thêm sách mới
+- [x] Sửa thông tin sách
+- [x] Xóa sách
+- [x] Tìm kiếm sách
 - [ ] Chọn ảnh bìa
 - [ ] Chọn file PDF/EPUB
 - [ ] Lưu đường dẫn file vào DB
