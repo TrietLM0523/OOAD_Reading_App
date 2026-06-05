@@ -1,923 +1,860 @@
-# GUIDE_JAVA_DESKTOP_BOOK_APP
+# GUIDE.md — BTL Book Reading App
 
-> Hướng dẫn triển khai bài tập lớn **BTL_Book_Reading_App**  
-> Chủ đề: **Ứng dụng quản lý đọc sách trên máy tính bằng Java Desktop**  
-> Công nghệ chốt hiện tại: **NetBeans + Maven + Java Swing + FlatLaf + SQL Server + JDBC**
+## 1. Mục đích của guide này
+
+File này là guide triển khai cho project `BTL_Book_Reading_App` sau khi rút gọn phạm vi để phù hợp với tiến độ hiện tại.
+
+Điểm quan trọng:
+
+> Bản guide này **không thay thế hoàn toàn thiết kế OOAD ban đầu**.  
+> Nó là bản hướng dẫn triển khai rút gọn, vẫn kế thừa các entity, use case và nghiệp vụ chính đã thống nhất giữ lại từ thiết kế cũ.
+
+Hướng triển khai hiện tại:
+
+```text
+Java Swing UI → Service Layer → DAO Layer → JDBC → SQL Server
+```
+
+Thiết kế cũ đóng vai trò là nền tảng phân tích nghiệp vụ.  
+Bản guide này đóng vai trò là kế hoạch triển khai code sao cho vẫn trace được về thiết kế đó.
 
 ---
 
-## 0. Trạng thái hiện tại
+## 2. Nguyên tắc rút gọn
 
-### Đã chốt
+Rút gọn ở đây nghĩa là:
 
-- Tên repo/thư mục cha: `Reading_App_Project`
-- Project NetBeans: `BTL_Book_Reading_App`
-- Package chính hiện tại: `com.mycompany.btl_book_reading_app`
-- Main class hiện tại: `com.mycompany.btl_book_reading_app.BTL_Book_Reading_App`
-- Database: `BookReadingDB`
-- UI chính: **Java Swing**
-- Theme UI: **FlatLaf**
-- Database: **SQL Server**
-- Kết nối DB: **JDBC**
-- Build/dependency: **Maven**
-- IDE chính: **Apache NetBeans**
+- Giảm số lượng use case phải demo.
+- Đưa một số chức năng phụ sang phần mở rộng.
+- Đổi công nghệ triển khai từ mobile/cloud sang desktop/database quan hệ.
+- Không làm mất các entity và nghiệp vụ lõi của hệ thống đọc sách.
 
-### Cấu trúc thư mục repo hiện tại
+Không được hiểu rút gọn là:
+
+- Bỏ luôn chức năng đọc sách.
+- Bỏ luôn tiến trình đọc.
+- Biến app thành app quản lý sách đơn thuần.
+- Xóa hết các entity cũ khỏi thiết kế.
+
+---
+
+## 3. Mapping từ thiết kế cũ sang triển khai hiện tại
+
+| Thiết kế OOAD ban đầu | Triển khai hiện tại |
+|---|---|
+| User | Bảng `Users`, `UserDAO`, `UserService`, `LoginFrame`, `RegisterFrame` |
+| Book | Bảng `Books`, `BookDAO`, `BookService`, `BookListPanel`, `BookManagementPanel` |
+| Genre | Bảng `Genres`, `GenreDAO`, dùng để phân loại sách |
+| ReadingProcess | Bảng `ReadingProcesses`, `ReadingProcessDAO`, `ReadingProcessService`, dùng để lưu tiến trình đọc |
+| Review | Bảng `Reviews`, có thể để mức mở rộng nếu không kịp code |
+| Quote | Bảng `Quotes`, có thể để mức mở rộng nếu không kịp code |
+| Notification | Bảng `Notifications`, có thể để mức mở rộng nếu không kịp code |
+| React Native UI | Java Swing UI |
+| Firebase Authentication | Xử lý đăng nhập bằng `Users` trong SQL Server |
+| Firestore Database | SQL Server |
+| Cloud Storage | Lưu file local, database chỉ lưu `filePath`, `coverPath` |
+| Firebase SDK | DAO/JDBC |
+
+---
+
+## 4. Use case đã thống nhất giữ sau rút gọn
+
+Sau khi rút gọn, use case nên chia thành 2 nhóm.
+
+### 4.1. Core use case bắt buộc nên triển khai
+
+| Mã | Use case | Actor | Lý do giữ |
+|---|---|---|---|
+| UC01 | Đăng ký tài khoản | User | Cần có user để dùng hệ thống |
+| UC02 | Đăng nhập | User/Admin | Cần xác thực để vào app |
+| UC03 | Xem danh sách sách | User | Chức năng nền của app đọc sách |
+| UC04 | Đọc/mở sách | User | Chức năng chính, tránh app chỉ là quản lý sách |
+| UC05 | Lưu tiến trình đọc | User | Bám sát entity `ReadingProcess` trong thiết kế cũ |
+| UC06 | Quản lý sách | Admin | Cho phép thêm/xóa/sửa sách |
+| UC07 | Quản lý thể loại | Admin | Hỗ trợ entity `Genre`, có thể làm đơn giản |
+| UC08 | Phân quyền User/Admin | System | Để tách user thường và admin |
+
+### 4.2. Extended use case có thể đưa vào mở rộng
+
+| Mã | Use case | Entity liên quan | Cách xử lý nếu không kịp |
+|---|---|---|---|
+| UC09 | Viết đánh giá sách | Review | Giữ bảng trong DB, ghi là hướng phát triển |
+| UC10 | Lưu trích dẫn | Quote | Giữ bảng trong DB, ghi là hướng phát triển |
+| UC11 | Nhận thông báo | Notification | Giữ bảng trong DB, ghi là hướng phát triển |
+| UC12 | Tìm kiếm nâng cao | Book, Genre | Có thể làm search cơ bản nếu kịp |
+| UC13 | Gợi ý sách | Book, Review | Để hướng phát triển |
+
+Với tiến độ hiện tại, app cần cố gắng hoàn thành chắc nhóm core use case trước.
+
+---
+
+## 5. Kiểm tra milestone có cover đủ use case không
+
+Bảng này là phần quan trọng nhất để đảm bảo milestone không lệch kế hoạch.
+
+| Milestone | Nội dung | Use case được cover | Entity/bảng liên quan | Trạng thái kỳ vọng |
+|---|---|---|---|---|
+| M1 | Khởi tạo project Maven + Swing + FlatLaf | Nền tảng cho toàn bộ use case | Chưa cần DB | Bắt buộc xong |
+| M2 | Tạo database + `DBConnection` | Nền tảng cho UC01-UC08 | Tất cả bảng chính | Bắt buộc xong |
+| M3 | Tạo model + DAO + service nền | Nền tảng cho UC01-UC08 | `Users`, `Books`, `Genres`, `ReadingProcesses` | Bắt buộc xong |
+| M4 | Đăng ký | UC01 | `Users` | Bắt buộc xong |
+| M5 | Đăng nhập | UC02 | `Users` | Bắt buộc xong |
+| M6 | MainFrame + điều hướng + session user | UC02, UC03, UC06, UC08 | `Users` | Bắt buộc xong |
+| M7 | Quản lý sách + thể loại cơ bản | UC03, UC06, UC07 | `Books`, `Genres` | Bắt buộc |
+| M8 | Chọn file sách PDF/EPUB/TXT khi thêm sách | UC04, UC06 | `Books.filePath`, `Books.fileType` | Bắt buộc nếu muốn app đúng hướng đọc sách |
+| M9 | Đọc/mở sách + lưu tiến trình | UC04, UC05 | `ReadingProcesses` | Rất quan trọng |
+| M10 | Phân quyền và hoàn thiện UI | UC08, hỗ trợ UC06 | `Users.role`, `Users.status` | Bắt buộc ở mức cơ bản |
+| M11 | Review/Quote/Notification đơn giản hoặc để mở rộng | UC09-UC11 | `Reviews`, `Quotes`, `Notifications` | Có thể optional |
+| M12 | Dọn code + demo + báo cáo | Tất cả use case đã làm | Toàn hệ thống | Bắt buộc |
+
+Kết luận audit:
+
+> Nếu chỉ làm tới M7 thì app mới giống quản lý sách.  
+> Để đúng thiết kế app đọc sách, tối thiểu phải có thêm M8 và M9: **lưu file sách + mở/đọc sách + lưu tiến trình đọc**.
+
+---
+
+## 6. Cấu trúc project đề xuất
 
 ```text
-Reading_App_Project/
-├── .git/
-├── BTL_Book_Reading_App/
-│   ├── pom.xml
-│   └── src/
+BTL_Book_Reading_App/
+│
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/
+│       │       └── mycompany/
+│       │           └── btl_book_reading_app/
+│       │               │
+│       │               ├── config/
+│       │               │   └── DBConnection.java
+│       │               │
+│       │               ├── dao/
+│       │               │   ├── UserDAO.java
+│       │               │   ├── BookDAO.java
+│       │               │   ├── GenreDAO.java
+│       │               │   ├── ReadingProcessDAO.java
+│       │               │   ├── ReviewDAO.java
+│       │               │   ├── QuoteDAO.java
+│       │               │   └── NotificationDAO.java
+│       │               │
+│       │               ├── model/
+│       │               │   ├── User.java
+│       │               │   ├── Book.java
+│       │               │   ├── Genre.java
+│       │               │   ├── ReadingProcess.java
+│       │               │   ├── Review.java
+│       │               │   ├── Quote.java
+│       │               │   └── Notification.java
+│       │               │
+│       │               ├── service/
+│       │               │   ├── UserService.java
+│       │               │   ├── BookService.java
+│       │               │   ├── GenreService.java
+│       │               │   └── ReadingProcessService.java
+│       │               │
+│       │               ├── ui/
+│       │               │   ├── LoginFrame.java
+│       │               │   ├── RegisterFrame.java
+│       │               │   ├── MainFrame.java
+│       │               │   └── panels/
+│       │               │       ├── BookListPanel.java
+│       │               │       ├── BookManagementPanel.java
+│       │               │       ├── GenreManagementPanel.java
+│       │               │       └── ReadingPanel.java
+│       │               │
+│       │               └── Main.java
+│       │
+│       └── resources/
+│           ├── covers/
+│           └── books/
+│
 ├── database/
-│   ├── schema.sql
-│   └── seed.sql
-├── GUIDE_JAVA_DESKTOP_BOOK_APP.md
-└── .gitignore
-```
-
----
-
-## 1. Mục tiêu bài tập lớn
-
-Xây dựng lại ứng dụng đọc sách từ bản thiết kế OOAD thành app Java Desktop.
-
-Ứng dụng cần có hai nhóm người dùng chính:
-
-- **User**: người đọc sách
-- **Admin**: quản trị viên
-
-Các nhóm chức năng chính:
-
-| Mã | Nhóm chức năng | Mô tả |
-|---|---|---|
-| UC01 | Quản lý xác thực | Đăng nhập, đăng ký |
-| UC02 | Quản lý thông tin cá nhân | Xem/cập nhật hồ sơ, đổi mật khẩu, đăng xuất |
-| UC03 | Quản lý đọc sách | Tìm kiếm sách, xem chi tiết, đọc sách, thêm vào thư viện |
-| UC04 | Thống kê Admin | Tổng sách, thành viên, bình luận, trích dẫn, top sách |
-| UC05 | Quản lý thư viện cá nhân | Sách đã lưu, trạng thái đọc, tiến độ đọc |
-| UC06 | Thống kê người đọc | Tổng sách, tổng trang, trạng thái đọc, top thể loại |
-| UC07 | Quản lý trích dẫn | Thêm, xem, xóa trích dẫn |
-| UC08 | Quản lý tài khoản | Admin xem, tìm, khóa, xóa user |
-| UC09 | Quản lý sách | Admin thêm, sửa, xóa, tìm kiếm sách |
-| UC10 | Quản lý bình luận/đánh giá | Admin xem/xóa bình luận vi phạm |
-
----
-
-## 2. Kiến trúc triển khai
-
-Giữ đúng tinh thần mô hình trong báo cáo:
-
-```text
-View Swing
-   ↓
-Controller / Event Handler
-   ↓
-Service
-   ↓
-DAO
-   ↓
-SQL Server Database
-```
-
-Trong code Java:
-
-```text
-view      → JFrame/JPanel giao diện
-service   → xử lý nghiệp vụ
-dao       → truy vấn SQL bằng JDBC
-model     → class dữ liệu
-config    → cấu hình database
-util      → tiện ích dùng chung
-```
-
-Cấu trúc package đề xuất:
-
-```text
-src/main/java/com/mycompany/btl_book_reading_app/
-├── BTL_Book_Reading_App.java
-├── config/
-│   └── DatabaseConnection.java
-├── model/
-│   ├── User.java
-│   ├── Book.java
-│   ├── Genre.java
-│   ├── ReadingProcess.java
-│   ├── Review.java
-│   ├── Quote.java
-│   └── Notification.java
-├── dao/
-│   ├── UserDAO.java
-│   ├── BookDAO.java
-│   ├── GenreDAO.java
-│   ├── ReadingProcessDAO.java
-│   ├── ReviewDAO.java
-│   ├── QuoteDAO.java
-│   └── NotificationDAO.java
-├── service/
-│   ├── AuthService.java
-│   ├── UserService.java
-│   ├── BookService.java
-│   ├── LibraryService.java
-│   ├── ReadingService.java
-│   ├── ReviewService.java
-│   ├── QuoteService.java
-│   ├── StatisticsService.java
-│   └── AdminService.java
-├── view/
-│   ├── LoginFrame.java
-│   ├── RegisterFrame.java
-│   ├── UserHomeFrame.java
-│   ├── AdminDashboardFrame.java
-│   ├── BookManagementFrame.java
-│   ├── LibraryFrame.java
-│   ├── BookDetailFrame.java
-│   ├── ReaderFrame.java
-│   ├── QuoteFrame.java
-│   └── StatisticsFrame.java
-└── util/
-    ├── PasswordUtil.java
-    ├── ValidationUtil.java
-    ├── SessionManager.java
-    └── FileStorageUtil.java
-```
-
----
-
-## 3. Maven dependencies
-
-Trong `BTL_Book_Reading_App/pom.xml`, dùng các thư viện chính:
-
-```xml
-<dependencies>
-    <!-- SQL Server JDBC Driver -->
-    <dependency>
-        <groupId>com.microsoft.sqlserver</groupId>
-        <artifactId>mssql-jdbc</artifactId>
-        <version>12.4.2.jre11</version>
-    </dependency>
-
-    <!-- Modern Look & Feel for Swing -->
-    <dependency>
-        <groupId>com.formdev</groupId>
-        <artifactId>flatlaf</artifactId>
-        <version>3.6</version>
-    </dependency>
-
-    <!-- Layout manager for Swing -->
-    <dependency>
-        <groupId>com.miglayout</groupId>
-        <artifactId>miglayout-swing</artifactId>
-        <version>11.4.2</version>
-    </dependency>
-
-    <!-- Password hashing -->
-    <dependency>
-        <groupId>org.mindrot</groupId>
-        <artifactId>jbcrypt</artifactId>
-        <version>0.4</version>
-    </dependency>
-
-    <!-- PDF processing later -->
-    <dependency>
-        <groupId>org.apache.pdfbox</groupId>
-        <artifactId>pdfbox</artifactId>
-        <version>3.0.3</version>
-    </dependency>
-</dependencies>
+│   ├── create_database.sql
+│   └── sample_data.sql
+│
+├── pom.xml
+└── README.md
 ```
 
 Lưu ý:
 
-- **Swing có sẵn trong JDK**, không cần tải riêng.
-- FlatLaf dùng để làm giao diện Swing hiện đại hơn.
-- MigLayout giúp layout form dễ hơn.
-- BCrypt dùng để mã hóa mật khẩu.
-- PDFBox dùng cho chức năng đọc/xử lý PDF về sau.
+- `ReviewDAO`, `QuoteDAO`, `NotificationDAO` có thể chưa code ngay, nhưng nếu đã giữ entity trong thiết kế thì nên để trong kế hoạch hoặc phần mở rộng.
+- Core bắt buộc nhất vẫn là `UserDAO`, `BookDAO`, `GenreDAO`, `ReadingProcessDAO`.
 
 ---
 
-## 4. Database
+## 7. Database schema nên dùng
 
-Database chính:
-
-```sql
-CREATE DATABASE BookReadingDB;
-GO
-
-USE BookReadingDB;
-GO
-```
-
-Các bảng chính:
-
-| Bảng | Vai trò |
-|---|---|
-| `Users` | Lưu thông tin user/admin |
-| `Genres` | Lưu thể loại sách |
-| `Books` | Lưu thông tin sách |
-| `ReadingProcess` | Lưu thư viện cá nhân + tiến độ đọc |
-| `Reviews` | Lưu đánh giá/bình luận |
-| `Quotes` | Lưu trích dẫn |
-| `Notifications` | Lưu nhắc đọc sách |
-
-File script:
-
-```text
-database/schema.sql
-database/seed.sql
-```
-
-Quy trình chạy:
-
-1. Mở SQL Server Management Studio hoặc Azure Data Studio.
-2. Chạy `schema.sql`.
-3. Chạy `seed.sql`.
-4. Test:
+### 7.1. Users
 
 ```sql
-USE BookReadingDB;
-GO
+CREATE TABLE Users (
+    idUser INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(50) NOT NULL UNIQUE,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    passwordHash NVARCHAR(255) NOT NULL,
+    fullName NVARCHAR(100),
+    role NVARCHAR(20) NOT NULL DEFAULT 'USER',
+    status NVARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    createdAt DATETIME DEFAULT GETDATE()
+);
+```
 
-SELECT * FROM Users;
-SELECT * FROM Genres;
-SELECT * FROM Books;
-SELECT * FROM ReadingProcess;
-SELECT * FROM Reviews;
-SELECT * FROM Quotes;
+### 7.2. Genres
+
+```sql
+CREATE TABLE Genres (
+    idGenre INT IDENTITY(1,1) PRIMARY KEY,
+    genreName NVARCHAR(100) NOT NULL UNIQUE,
+    description NVARCHAR(255)
+);
+```
+
+### 7.3. Books
+
+```sql
+CREATE TABLE Books (
+    idBook INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(200) NOT NULL,
+    author NVARCHAR(150),
+    description NVARCHAR(MAX),
+    idGenre INT,
+    coverPath NVARCHAR(255),
+    filePath NVARCHAR(255),
+    fileType NVARCHAR(20),
+    totalPages INT DEFAULT 0,
+    createdAt DATETIME DEFAULT GETDATE(),
+    updatedAt DATETIME,
+    FOREIGN KEY (idGenre) REFERENCES Genres(idGenre)
+);
+```
+
+### 7.4. ReadingProcesses
+
+```sql
+CREATE TABLE ReadingProcesses (
+    idReadingProcess INT IDENTITY(1,1) PRIMARY KEY,
+    idUser INT NOT NULL,
+    idBook INT NOT NULL,
+    currentPage INT DEFAULT 0,
+    progressPercent FLOAT DEFAULT 0,
+    rereadCount INT DEFAULT 0,
+    lastReadAt DATETIME,
+    updatedAt DATETIME DEFAULT GETDATE(),
+    UNIQUE(idUser, idBook),
+    FOREIGN KEY (idUser) REFERENCES Users(idUser),
+    FOREIGN KEY (idBook) REFERENCES Books(idBook)
+);
+```
+
+### 7.5. Reviews
+
+```sql
+CREATE TABLE Reviews (
+    idReview INT IDENTITY(1,1) PRIMARY KEY,
+    idUser INT NOT NULL,
+    idBook INT NOT NULL,
+    rating INT,
+    comment NVARCHAR(MAX),
+    createdAt DATETIME DEFAULT GETDATE(),
+    updatedAt DATETIME,
+    UNIQUE(idUser, idBook),
+    FOREIGN KEY (idUser) REFERENCES Users(idUser),
+    FOREIGN KEY (idBook) REFERENCES Books(idBook)
+);
+```
+
+### 7.6. Quotes
+
+```sql
+CREATE TABLE Quotes (
+    idQuote INT IDENTITY(1,1) PRIMARY KEY,
+    idUser INT NOT NULL,
+    idBook INT NOT NULL,
+    quoteText NVARCHAR(MAX) NOT NULL,
+    pageNumber INT,
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (idUser) REFERENCES Users(idUser),
+    FOREIGN KEY (idBook) REFERENCES Books(idBook)
+);
+```
+
+### 7.7. Notifications
+
+```sql
+CREATE TABLE Notifications (
+    idNotification INT IDENTITY(1,1) PRIMARY KEY,
+    idUser INT NOT NULL,
+    title NVARCHAR(200),
+    message NVARCHAR(MAX),
+    isRead BIT DEFAULT 0,
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (idUser) REFERENCES Users(idUser)
+);
 ```
 
 ---
 
-## 5. Kết nối database từ Java
+## 8. Chi tiết milestone
 
-Tạo package:
+## M1 — Khởi tạo project
+
+Mục tiêu:
+
+- Tạo project Maven trong NetBeans.
+- Cấu hình `pom.xml`.
+- Thêm SQL Server JDBC Driver.
+- Thêm FlatLaf.
+- Tạo package cơ bản.
+
+Checklist:
+
+- [ ] Project chạy được.
+- [ ] `Main.java` mở được frame đầu tiên.
+- [ ] Không lỗi Maven dependency.
+
+Use case cover:
+
+- Chưa cover trực tiếp use case nào.
+- Là nền tảng cho toàn bộ project.
+
+---
+
+## M2 — Tạo database và kết nối SQL Server
+
+Mục tiêu:
+
+- Tạo database SQL Server.
+- Tạo các bảng chính.
+- Tạo `DBConnection.java`.
+- Test kết nối thành công.
+
+Checklist:
+
+- [ ] Có file `create_database.sql`.
+- [ ] Có file `sample_data.sql`.
+- [ ] `DBConnection.getConnection()` chạy được.
+- [ ] Không hardcode thông tin nhạy cảm nếu đẩy GitHub.
+
+Use case cover:
+
+- Nền tảng cho UC01-UC08.
+
+---
+
+## M3 — Model, DAO, Service nền
+
+Mục tiêu:
+
+Tạo model:
+
+- `User`
+- `Book`
+- `Genre`
+- `ReadingProcess`
+
+Tạo DAO:
+
+- `UserDAO`
+- `BookDAO`
+- `GenreDAO`
+- `ReadingProcessDAO`
+
+Tạo service:
+
+- `UserService`
+- `BookService`
+- `GenreService`
+- `ReadingProcessService`
+
+Checklist:
+
+- [ ] Model có đủ field theo database.
+- [ ] DAO dùng `PreparedStatement`.
+- [ ] Service kiểm tra nghiệp vụ trước khi gọi DAO.
+- [ ] Không gọi SQL trực tiếp từ UI.
+
+Use case cover:
+
+- Nền tảng cho UC01-UC08.
+
+---
+
+## M4 — Đăng ký tài khoản
+
+Mục tiêu:
+
+- Người dùng nhập username, email, password.
+- Hệ thống kiểm tra dữ liệu rỗng.
+- Hệ thống kiểm tra username/email đã tồn tại.
+- Tạo user mới trong bảng `Users`.
+
+Luồng:
 
 ```text
-com.mycompany.btl_book_reading_app.config
+RegisterFrame
+  → UserService.register()
+  → UserDAO.existsByUsernameOrEmail()
+  → UserDAO.insert()
+  → SQL Server
 ```
 
-Tạo file:
+Checklist:
+
+- [ ] Đăng ký thành công ghi thật vào DB.
+- [ ] Trùng email/username thì báo lỗi.
+- [ ] Input rỗng thì báo lỗi.
+- [ ] Sau khi đăng ký có thể quay về đăng nhập.
+
+Use case cover:
+
+- UC01 Đăng ký tài khoản.
+
+---
+
+## M5 — Đăng nhập
+
+Mục tiêu:
+
+- Người dùng nhập username/email và password.
+- Hệ thống kiểm tra tài khoản.
+- Hệ thống kiểm tra mật khẩu.
+- Hệ thống kiểm tra `status = ACTIVE`.
+- Đăng nhập thành công thì mở `MainFrame`.
+
+Luồng:
 
 ```text
-DatabaseConnection.java
+LoginFrame
+  → UserService.login()
+  → UserDAO.findByUsernameOrEmail()
+  → SQL Server
+  → MainFrame
 ```
 
-Code mẫu:
+Checklist:
+
+- [ ] Đăng nhập đúng mở được MainFrame.
+- [ ] Sai mật khẩu báo lỗi.
+- [ ] Tài khoản không tồn tại báo lỗi.
+- [ ] Tài khoản LOCKED không được đăng nhập.
+- [ ] Lưu được thông tin user đang đăng nhập.
+
+Use case cover:
+
+- UC02 Đăng nhập.
+
+---
+
+## M6 — MainFrame, session user và điều hướng
+
+Mục tiêu:
+
+- Tạo màn hình chính sau đăng nhập.
+- Hiển thị thông tin user.
+- Có menu hoặc sidebar điều hướng.
+- Điều hướng tới danh sách sách, quản lý sách, đọc sách.
+- Phân biệt user thường và admin ở mức cơ bản.
+
+Checklist:
+
+- [ ] MainFrame nhận được object `User currentUser`.
+- [ ] User thường thấy chức năng đọc/xem sách.
+- [ ] Admin thấy thêm chức năng quản lý sách.
+- [ ] Không hiện popup “làm ở milestone sau” cho chức năng đã hoàn thành.
+
+Use case cover:
+
+- UC02 Đăng nhập.
+- UC03 Xem danh sách sách.
+- UC06 Quản lý sách.
+- UC08 Phân quyền.
+
+---
+
+## M7 — Quản lý sách và thể loại cơ bản
+
+Mục tiêu:
+
+- Hiển thị danh sách sách.
+- Thêm sách.
+- Xóa sách.
+- Cập nhật sách nếu kịp.
+- Quản lý thể loại ở mức cơ bản.
+
+Luồng thêm sách:
+
+```text
+BookManagementPanel
+  → BookService.addBook()
+  → BookDAO.insert()
+  → SQL Server
+  → reload table
+```
+
+Luồng xóa sách:
+
+```text
+BookManagementPanel
+  → BookService.deleteBook()
+  → BookDAO.deleteById()
+  → SQL Server
+  → reload table
+```
+
+Checklist:
+
+- [ ] Bảng sách load từ SQL Server.
+- [ ] Thêm sách ghi thật vào bảng `Books`.
+- [ ] Xóa sách xóa thật khỏi bảng `Books`.
+- [ ] Reload table sau khi thêm/xóa.
+- [ ] Có combobox thể loại nếu đã làm `Genres`.
+- [ ] Không cho user thường thao tác quản lý sách.
+
+Use case cover:
+
+- UC03 Xem danh sách sách.
+- UC06 Quản lý sách.
+- UC07 Quản lý thể loại.
+- UC08 Phân quyền.
+
+---
+
+## M8 — Chọn file sách PDF/EPUB/TXT khi thêm sách
+
+Mục tiêu:
+
+- Khi thêm sách, admin có thể chọn file sách từ máy.
+- App lưu file vào thư mục project hoặc lưu path.
+- Database lưu `filePath` và `fileType`.
+
+Đây là milestone quan trọng để nối M7 quản lý sách với M9 đọc sách.
+
+Luồng:
+
+```text
+Admin
+  → BookManagementPanel
+  → JFileChooser
+  → Chọn file PDF/EPUB/TXT
+  → Copy file vào src/main/resources/books/
+  → Lưu filePath, fileType vào Books
+  → SQL Server
+```
+
+Checklist:
+
+- [ ] Có nút chọn file sách.
+- [ ] Chỉ nhận `.pdf`, `.epub`, `.txt`.
+- [ ] Lưu được `filePath`.
+- [ ] Lưu được `fileType`.
+- [ ] Khi load bảng sách có thể thấy sách nào có file.
+- [ ] Nếu chưa chọn file thì xử lý được, không crash.
+
+Use case cover:
+
+- UC04 Đọc/mở sách.
+- UC06 Quản lý sách.
+
+Code chọn file:
 
 ```java
-package com.mycompany.btl_book_reading_app.config;
+private String selectedBookFilePath;
+private String selectedBookFileType;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+private void chooseBookFile() {
+    JFileChooser fileChooser = new JFileChooser();
 
-public class DatabaseConnection {
+    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+            "Book files (*.pdf, *.epub, *.txt)",
+            "pdf", "epub", "txt"
+    );
 
-    private static final String URL =
-            "jdbc:sqlserver://localhost:1433;"
-            + "databaseName=BookReadingDB;"
-            + "encrypt=true;"
-            + "trustServerCertificate=true;";
+    fileChooser.setFileFilter(filter);
 
-    private static final String USER = "sa";
-    private static final String PASSWORD = "your_password";
+    int result = fileChooser.showOpenDialog(this);
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    if (result == JFileChooser.APPROVE_OPTION) {
+        File selectedFile = fileChooser.getSelectedFile();
+
+        selectedBookFilePath = selectedFile.getAbsolutePath();
+        selectedBookFileType = getFileExtension(selectedFile.getName()).toUpperCase();
+
+        JOptionPane.showMessageDialog(this, "Đã chọn file: " + selectedFile.getName());
+    }
+}
+
+private String getFileExtension(String fileName) {
+    int dotIndex = fileName.lastIndexOf(".");
+    if (dotIndex == -1) {
+        return "";
+    }
+    return fileName.substring(dotIndex + 1);
+}
+```
+
+---
+
+## M9 — Đọc/mở sách và lưu tiến trình đọc
+
+Mục tiêu:
+
+- User chọn một sách để đọc.
+- App mở file sách dựa trên `filePath`.
+- Với TXT có thể đọc trực tiếp trong app.
+- Với PDF/EPUB có thể mở bằng phần mềm mặc định.
+- Khi user đọc, app lưu tiến trình vào `ReadingProcesses`.
+- Khi user mở lại sách, app load lại tiến trình cũ.
+
+Đây là milestone bắt buộc nếu muốn app đúng thiết kế đọc sách.
+
+Luồng mở sách:
+
+```text
+BookListPanel
+  → chọn sách
+  → ReadingPanel
+  → BookService.getBookById()
+  → open filePath
+```
+
+Luồng lưu tiến trình:
+
+```text
+ReadingPanel
+  → ReadingProcessService.saveProgress(idUser, idBook, currentPage, progressPercent)
+  → ReadingProcessDAO.upsert()
+  → SQL Server
+```
+
+Checklist:
+
+- [ ] User mở được sách từ danh sách.
+- [ ] Nếu file không tồn tại thì báo lỗi rõ ràng.
+- [ ] TXT đọc được trong `JTextArea` nếu làm đọc trong app.
+- [ ] PDF/EPUB mở được bằng app mặc định nếu chưa nhúng reader.
+- [ ] Có nút lưu tiến trình.
+- [ ] `ReadingProcesses` có record theo `idUser`, `idBook`.
+- [ ] Mở lại sách load được tiến trình cũ.
+- [ ] Không tạo trùng tiến trình nhờ `UNIQUE(idUser, idBook)`.
+
+Use case cover:
+
+- UC04 Đọc/mở sách.
+- UC05 Lưu tiến trình đọc.
+
+Code mở file bằng app mặc định:
+
+```java
+private void openBookFile(String filePath) {
+    try {
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy file sách.");
+            return;
+        }
+
+        Desktop.getDesktop().open(file);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Không thể mở file sách: " + e.getMessage());
     }
 }
 ```
 
-Cần sửa:
+Code đọc TXT trực tiếp:
 
 ```java
-private static final String PASSWORD = "your_password";
-```
-
-thành mật khẩu SQL Server thật trên máy.
-
----
-
-## 6. Git workflow
-
-Repo đang nằm ở thư mục cha:
-
-```text
-Reading_App_Project/
-```
-
-Không tạo git lại trong thư mục project con.
-
-### Kiểm tra trạng thái
-
-```bash
-git status
-```
-
-### Commit theo milestone
-
-```bash
-git add .
-git commit -m "Add database schema"
-git push
-```
-
-### `.gitignore`
-
-Đặt ở thư mục `Reading_App_Project/.gitignore`:
-
-```gitignore
-# Maven / Java build
-target/
-*.class
-*.log
-
-# NetBeans private files
-nbproject/private/
-build/
-dist/
-
-# Local environment
-.env
-
-# App local storage
-data/books/
-data/covers/
-
-# IDE
-.idea/
-.vscode/
-
-# OS
-.DS_Store
-Thumbs.db
+private void loadTxtBook(String filePath) {
+    try {
+        String content = Files.readString(Path.of(filePath));
+        txtBookContent.setText(content);
+        txtBookContent.setCaretPosition(0);
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(this, "Không thể đọc file TXT: " + e.getMessage());
+    }
+}
 ```
 
 ---
 
-# 7. Milestone Tracker
+## M10 — Phân quyền và hoàn thiện UI
 
-## Tổng quan tiến độ
+Mục tiêu:
 
-| Milestone | Nội dung | Trạng thái |
-|---|---|---|
-| M0 | Chuẩn bị project, Maven, Git | Hoàn thành |
-| M1 | Tạo database SQL Server | Hoàn thành |
-| M2 | Kết nối Java ↔ SQL Server | Hoàn thành |
-| M3 | Đăng nhập/đăng ký | Hoàn thành |
-| M4 | Giao diện chính User/Admin | Hoàn thành |
-| M5 | Admin quản lý sách | Hoàn thành |
-| M6 | User tìm kiếm/xem chi tiết sách | Đang làm |
-| M7 | Thư viện cá nhân + tiến độ đọc | Chưa làm |
-| M8 | Đọc PDF cơ bản | Chưa làm |
-| M9 | Đánh giá + bình luận | Chưa làm |
-| M10 | Trích dẫn | Chưa làm |
-| M11 | Thống kê User | Chưa làm |
-| M12 | Thống kê Admin | Chưa làm |
-| M13 | Quản lý user/bình luận Admin | Chưa làm |
-| M14 | Hoàn thiện UI + test + báo cáo | Chưa làm |
+- Tách user thường và admin.
+- Admin được quản lý sách.
+- User thường chỉ xem/đọc sách.
+- UI ổn định, không còn popup placeholder cho chức năng đã làm.
 
----
+Checklist:
 
-## M0. Chuẩn bị project, Maven, Git
+- [ ] `Users.role` có `USER` và `ADMIN`.
+- [ ] MainFrame kiểm tra role.
+- [ ] User thường không thấy hoặc không dùng được quản lý sách.
+- [ ] Admin thao tác thêm/xóa/sửa sách.
+- [ ] LoginFrame dùng `setSize(450, 400)`.
+- [ ] RegisterFrame dùng `setSize(480, 500)`.
+- [ ] Các lỗi input có popup rõ ràng.
 
-### Mục tiêu
+Use case cover:
 
-Tạo project NetBeans Maven và chạy được cửa sổ Swing mẫu.
-
-### Checklist
-
-- [x] Tạo project `BTL_Book_Reading_App`
-- [x] Có repo Git ở thư mục cha `Reading_App_Project`
-- [x] Sửa `pom.xml`
-- [x] Maven `Clean and Build` thành công
-- [x] Thêm FlatLaf, MigLayout, JDBC, BCrypt, PDFBox
-- [x] Tạo `.gitignore` ở thư mục cha
-- [x] Commit milestone M0
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Initialize BTL Book Reading App project"
-git push
-```
+- UC08 Phân quyền.
+- Hỗ trợ UC06 Quản lý sách.
 
 ---
 
-## M1. Tạo database SQL Server
+## M11 — Review, Quote, Notification ở mức mở rộng
 
-### Mục tiêu
+Mục tiêu:
 
-Tạo database `BookReadingDB` và các bảng chính.
+Không bắt buộc phải hoàn thiện nếu thiếu thời gian, nhưng phải giữ trace với thiết kế cũ.
 
-### Checklist
+Cách xử lý an toàn:
 
-- [x] Tạo folder `database/`
-- [x] Tạo `database/schema.sql`
-- [x] Tạo `database/seed.sql`
-- [x] Tạo database `BookReadingDB`
-- [x] Tạo bảng `Users`
-- [x] Tạo bảng `Genres`
-- [x] Tạo bảng `Books`
-- [x] Tạo bảng `ReadingProcess`
-- [x] Tạo bảng `Reviews`
-- [x] Tạo bảng `Quotes`
-- [x] Tạo bảng `Notifications`
-- [x] Insert dữ liệu mẫu
-- [x] Test bằng `SELECT * FROM Users`
-- [x] Commit milestone M1
+- Database vẫn có bảng `Reviews`, `Quotes`, `Notifications`.
+- Model có thể tạo trước nếu muốn.
+- UI có thể để sau.
+- Báo cáo ghi là chức năng mở rộng hoặc triển khai sau.
 
-### Commit gợi ý
+Nếu có thời gian, có thể làm bản đơn giản:
 
-```bash
-git add database/
-git commit -m "Add SQL Server database schema and seed data"
-git push
-```
+### Review đơn giản
 
----
+- User chọn sách.
+- Nhập rating/comment.
+- Lưu vào `Reviews`.
+- Mỗi user chỉ có một review cho một sách.
 
-## M2. Kết nối Java với SQL Server
+### Quote đơn giản
 
-### Mục tiêu
+- User nhập đoạn quote.
+- Chọn pageNumber.
+- Lưu vào `Quotes`.
 
-Java app kết nối được tới `BookReadingDB`.
+### Notification đơn giản
 
-### Checklist
+- Admin tạo thông báo.
+- User xem danh sách thông báo.
 
-- [x] Tạo package `config`
-- [x] Tạo `DatabaseConnection.java`
-- [x] Sửa username/password SQL Server
-- [x] Test `SELECT COUNT(*) FROM Users`
-- [x] In ra console kết nối thành công
-- [x] Commit milestone M2
+Use case cover:
 
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Add SQL Server database connection"
-git push
-```
+- UC09 Review.
+- UC10 Quote.
+- UC11 Notification.
 
 ---
 
-## M3. Đăng nhập/đăng ký
+## M12 — Dọn code, demo và báo cáo
 
-### Mục tiêu
+Mục tiêu:
 
-Có chức năng đăng nhập và đăng ký tài khoản.
+- Kiểm tra toàn bộ use case core.
+- Chuẩn bị dữ liệu mẫu.
+- Dọn code.
+- Chuẩn bị demo.
+- Cập nhật báo cáo theo app thật.
 
-### File cần tạo
+Checklist demo:
 
-```text
-model/User.java
-dao/UserDAO.java
-service/AuthService.java
-util/PasswordUtil.java
-view/LoginFrame.java
-view/RegisterFrame.java
-```
+- [ ] Mở app.
+- [ ] Đăng ký tài khoản.
+- [ ] Đăng nhập user.
+- [ ] Xem danh sách sách.
+- [ ] Đăng nhập admin.
+- [ ] Thêm sách có file.
+- [ ] Kiểm tra sách xuất hiện trong database.
+- [ ] User mở sách.
+- [ ] User lưu tiến trình đọc.
+- [ ] Đăng nhập lại và kiểm tra tiến trình còn.
+- [ ] Admin xóa sách.
+- [ ] Kiểm tra database thay đổi thật.
 
-### Checklist
+Use case cover:
 
-- [x] Tạo model `User`
-- [x] Tạo `PasswordUtil` dùng BCrypt
-- [x] Tạo `UserDAO.findByEmail()`
-- [x] Tạo `UserDAO.insertUser()`
-- [x] Tạo `AuthService.login()`
-- [x] Tạo `AuthService.register()`
-- [x] Tạo giao diện `LoginFrame`
-- [x] Tạo giao diện `RegisterFrame`
-- [x] Login phân biệt `USER` và `ADMIN`
-- [x] Commit milestone M3
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Implement login and register module"
-git push
-```
+- Tổng hợp UC01-UC08.
 
 ---
 
-## M4. Giao diện chính User/Admin
+## 9. Phần PDF/EPUB/TXT nên làm ở mức nào?
 
-### Mục tiêu
+Với tiến độ hiện tại, không nên tự viết trình đọc PDF/EPUB phức tạp.
 
-Sau khi đăng nhập, user/admin vào đúng màn hình.
+Mức đủ tốt:
 
-### File cần tạo
+| Loại file | Cách xử lý |
+|---|---|
+| TXT | Đọc trực tiếp trong app bằng `Files.readString()` |
+| PDF | Mở bằng app mặc định qua `Desktop.getDesktop().open(file)` |
+| EPUB | Mở bằng app mặc định qua `Desktop.getDesktop().open(file)` |
 
-```text
-view/UserHomeFrame.java
-view/AdminDashboardFrame.java
-util/SessionManager.java
-```
+Như vậy app vẫn có chức năng đọc/mở sách, vẫn lưu được tiến trình đọc, và không bị sa vào xử lý thư viện PDF/EPUB quá nặng.
 
-### Checklist
+Nếu muốn làm nâng cao:
 
-- [x] Tạo `SessionManager`
-- [x] Login USER mở `UserHomeFrame`
-- [x] Login ADMIN mở `AdminDashboardFrame`
-- [x] Có nút đăng xuất
-- [x] Có menu điều hướng
-- [x] Commit milestone M4
+- PDF: dùng Apache PDFBox hoặc ICEpdf.
+- EPUB: dùng epublib.
 
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Add user and admin main screens"
-git push
-```
+Nhưng đây nên là phần mở rộng, không phải core bắt buộc.
 
 ---
 
-## M5. Admin quản lý sách
+## 10. Những điểm không được bỏ nếu muốn đúng kế hoạch
 
-### Mục tiêu
+Không nên bỏ các phần sau:
 
-Admin thêm/sửa/xóa/tìm kiếm sách.
+1. `ReadingProcesses`.
+2. Chức năng mở/đọc sách.
+3. `filePath` và `fileType` trong `Books`.
+4. Phân quyền user/admin.
+5. DAO/Service tách khỏi UI.
+6. `PreparedStatement`.
+7. Bảng `Genres` hoặc ít nhất field thể loại trong `Books`.
 
-### File cần tạo
-
-```text
-model/Book.java
-model/Genre.java
-dao/BookDAO.java
-dao/GenreDAO.java
-service/BookService.java
-view/BookManagementFrame.java
-```
-
-### Checklist
-
-- [x] Hiển thị danh sách sách bằng `JTable`
-- [x] Thêm sách mới
-- [x] Sửa thông tin sách
-- [x] Xóa sách
-- [x] Tìm kiếm sách
-- [ ] Chọn ảnh bìa
-- [ ] Chọn file PDF/EPUB
-- [ ] Lưu đường dẫn file vào DB
-- [ ] Commit milestone M5
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Implement admin book management"
-git push
-```
+Nếu bỏ các phần này, app dễ bị lệch thành app CRUD sách đơn thuần, không còn đúng thiết kế đọc sách ban đầu.
 
 ---
 
-## M6. User tìm kiếm/xem chi tiết sách
+## 11. Thứ tự làm từ thời điểm hiện tại
 
-### Mục tiêu
+Nếu hiện tại đã xong đăng ký, đăng nhập, MainFrame và quản lý sách cơ bản, thứ tự tiếp theo nên là:
 
-User xem kho sách, tìm kiếm sách, xem chi tiết và thêm sách vào thư viện.
-
-### File cần tạo
-
-```text
-view/SearchBookPanel.java
-view/BookDetailFrame.java
-service/LibraryService.java
-dao/ReadingProcessDAO.java
-```
-
-### Checklist
-
-- [ ] Hiển thị danh sách sách
-- [ ] Tìm theo tên sách
-- [ ] Tìm theo tác giả
-- [ ] Tìm theo thể loại
-- [ ] Xem chi tiết sách
-- [ ] Thêm vào thư viện
-- [ ] Nếu sách đã có thì báo lỗi
-- [ ] Commit milestone M6
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Add book search and detail features"
-git push
-```
+1. Kiểm tra M7: thêm/xóa sách đã ghi thật vào SQL Server chưa.
+2. Bổ sung `filePath`, `fileType` vào form thêm sách.
+3. Thêm nút chọn file bằng `JFileChooser`.
+4. Lưu đường dẫn file vào bảng `Books`.
+5. Tạo `ReadingPanel`.
+6. Từ danh sách sách, bấm “Đọc” để mở `ReadingPanel`.
+7. Mở TXT trong app hoặc PDF/EPUB bằng app mặc định.
+8. Tạo `ReadingProcessDAO`.
+9. Lưu tiến trình đọc.
+10. Load lại tiến trình khi mở lại sách.
+11. Chốt phân quyền admin/user.
+12. Dọn UI và chuẩn bị demo.
 
 ---
 
-## M7. Thư viện cá nhân + tiến độ đọc
-
-### Mục tiêu
-
-User quản lý sách đã thêm và lưu tiến độ đọc.
-
-### File cần tạo
-
-```text
-model/ReadingProcess.java
-dao/ReadingProcessDAO.java
-service/ReadingService.java
-view/LibraryFrame.java
-```
-
-### Checklist
-
-- [ ] Hiển thị sách trong thư viện cá nhân
-- [ ] Tìm kiếm trong thư viện
-- [ ] Cập nhật trạng thái đọc
-- [ ] Cập nhật trang hiện tại
-- [ ] Xóa sách khỏi thư viện
-- [ ] Lưu tracker
-- [ ] Commit milestone M7
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Implement personal library and reading progress"
-git push
-```
-
----
-
-## M8. Đọc PDF cơ bản
-
-### Mục tiêu
-
-Mở file PDF và lưu vị trí đọc.
-
-### File cần tạo
-
-```text
-view/ReaderFrame.java
-service/PdfReaderService.java
-```
-
-### Checklist
-
-- [ ] Mở file PDF từ `file_path`
-- [ ] Hiển thị trang hiện tại
-- [ ] Chuyển trang trước/sau
-- [ ] Lưu `current_page`
-- [ ] Tự mở lại trang gần nhất
-- [ ] Commit milestone M8
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Add basic PDF reader"
-git push
-```
-
----
-
-## M9. Đánh giá + bình luận
-
-### Mục tiêu
-
-User đánh giá sách, admin xem/xóa bình luận.
-
-### File cần tạo
-
-```text
-model/Review.java
-dao/ReviewDAO.java
-service/ReviewService.java
-view/ReviewPanel.java
-view/AdminReviewFrame.java
-```
-
-### Checklist
-
-- [ ] User đánh giá sao 1-5
-- [ ] User viết bình luận
-- [ ] Cập nhật `avg_rating`
-- [ ] Admin xem danh sách bình luận
-- [ ] Admin xóa bình luận
-- [ ] Commit milestone M9
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Implement book reviews and comments"
-git push
-```
-
----
-
-## M10. Trích dẫn
-
-### Mục tiêu
-
-User lưu, xem, xóa trích dẫn.
-
-### File cần tạo
-
-```text
-model/Quote.java
-dao/QuoteDAO.java
-service/QuoteService.java
-view/QuoteFrame.java
-```
-
-### Checklist
-
-- [ ] Thêm trích dẫn
-- [ ] Xem danh sách trích dẫn
-- [ ] Xóa trích dẫn
-- [ ] Gắn trích dẫn với user và book
-- [ ] Commit milestone M10
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Implement quote management"
-git push
-```
-
----
-
-## M11. Thống kê User
-
-### Mục tiêu
-
-User xem thống kê quá trình đọc.
-
-### File cần tạo
-
-```text
-service/StatisticsService.java
-view/UserStatisticsFrame.java
-```
-
-### Checklist
-
-- [ ] Tổng số sách
-- [ ] Số sách theo trạng thái
-- [ ] Tổng số trang đã đọc
-- [ ] Tác giả đọc nhiều nhất
-- [ ] Top thể loại
-- [ ] Sách đánh giá cao nhất
-- [ ] Commit milestone M11
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Add user reading statistics"
-git push
-```
-
----
-
-## M12. Thống kê Admin
-
-### Mục tiêu
-
-Admin xem dashboard tổng quan.
-
-### Checklist
-
-- [ ] Tổng đầu sách
-- [ ] Tổng thành viên
-- [ ] Tổng bình luận
-- [ ] Tổng trích dẫn
-- [ ] Top 5 sách đánh giá cao
-- [ ] Phân bố thể loại
-- [ ] Top người đọc nhiều nhất
-- [ ] Commit milestone M12
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Add admin dashboard statistics"
-git push
-```
-
----
-
-## M13. Quản lý user Admin
-
-### Mục tiêu
-
-Admin quản lý tài khoản user.
-
-### File cần tạo
-
-```text
-view/AdminUserFrame.java
-service/AdminService.java
-```
-
-### Checklist
-
-- [ ] Xem danh sách user
-- [ ] Tìm kiếm user
-- [ ] Khóa user
-- [ ] Mở khóa user
-- [ ] Xóa user
-- [ ] Không cho admin tự xóa mình
-- [ ] Commit milestone M13
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Implement admin user management"
-git push
-```
-
----
-
-## M14. Hoàn thiện UI + test + báo cáo
-
-### Mục tiêu
-
-Hoàn thiện demo và tài liệu.
-
-### Checklist
-
-- [ ] Làm đẹp UI bằng FlatLaf
-- [ ] Kiểm tra toàn bộ luồng user
-- [ ] Kiểm tra toàn bộ luồng admin
-- [ ] Bổ sung ảnh chụp màn hình
-- [ ] Viết README
-- [ ] Cập nhật báo cáo triển khai
-- [ ] Commit final
-
-### Commit gợi ý
-
-```bash
-git add .
-git commit -m "Finalize desktop book reading app"
-git push
-```
-
----
-
-# 8. Quy tắc làm việc
-
-## Mỗi lần làm chỉ tập trung một milestone
-
-Không nhảy từ login sang thống kê nếu database chưa xong.
-
-Thứ tự ưu tiên hiện tại:
-
-```text
-M0 → M1 → M2 → M3 → M4 → M5 → M6 → M7 → M8 → M9 → M10 → M11 → M12 → M13 → M14
-```
-
-## Commit sau mỗi milestone
-
-Mỗi milestone xong phải commit ngay để dễ quay lại nếu lỗi.
-
-## Không đẩy file nặng lên Git
-
-Không đẩy:
-
-```text
-target/
-data/books/
-data/covers/
-*.pdf
-*.epub
-```
-
-Nếu cần demo sách mẫu, để riêng link hoặc dùng file nhỏ.
-
----
-
-# 9. Việc cần làm tiếp theo
-
-Trạng thái hiện tại đang ở:
-
-```text
-M1 - Tạo database SQL Server
-```
-
-Việc cần làm ngay:
-
-1. Tạo folder `database/`.
-2. Tạo `database/schema.sql`.
-3. Tạo `database/seed.sql`.
-4. Chạy script trong SQL Server.
-5. Test `SELECT * FROM Users`.
-6. Commit milestone M1.
-
-Sau khi M1 xong, chuyển sang:
-
-```text
-M2 - Kết nối Java với SQL Server
-```
+## 12. Kết luận audit milestone
+
+Milestone cũ không sai, nhưng cần chỉnh lại thứ tự và trọng tâm:
+
+- M7 không chỉ là thêm/xóa sách, mà phải chuẩn bị cho đọc sách bằng `filePath`.
+- M8 phải là chọn/lưu file PDF/EPUB/TXT.
+- M9 phải là đọc/mở sách và lưu tiến trình đọc.
+- Review/Quote/Notification không nên ép làm ngay, nhưng nên giữ trong thiết kế mở rộng để không mất liên hệ với thiết kế cũ.
+
+Bộ milestone sau khi audit đã cover đủ nhóm use case core:
+
+| Use case core | Milestone cover |
+|---|---|
+| Đăng ký | M4 |
+| Đăng nhập | M5 |
+| Xem danh sách sách | M6, M7 |
+| Quản lý sách | M7, M8 |
+| Đọc/mở sách | M8, M9 |
+| Lưu tiến trình đọc | M9 |
+| Quản lý thể loại | M7 |
+| Phân quyền | M6, M10 |
+
+Vì vậy, chỉ cần đi theo milestone trong guide này thì project vẫn rút gọn được, nhưng không lệch khỏi thiết kế OOAD đã thống nhất.

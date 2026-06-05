@@ -20,6 +20,7 @@ public class AdminDashboardFrame extends JFrame {
 
     private JButton btnDashboard;
     private JButton btnManageBooks;
+    private JButton btnManageGenres;
     private JButton btnManageUsers;
     private JButton btnManageReviews;
     private JButton btnLogout;
@@ -46,7 +47,7 @@ public class AdminDashboardFrame extends JFrame {
         JPanel sidebar = new JPanel(new MigLayout(
                 "fillx, insets 20",
                 "[grow]",
-                "[]20[]10[]10[]10[]push[]"
+                ""
         ));
         sidebar.setPreferredSize(new Dimension(260, 700));
 
@@ -55,13 +56,16 @@ public class AdminDashboardFrame extends JFrame {
 
         btnDashboard = new JButton("Dashboard");
         btnManageBooks = new JButton("Quản lý sách");
+        btnManageGenres = new JButton("Quản lý thể loại");
         btnManageUsers = new JButton("Quản lý người dùng");
         btnManageReviews = new JButton("Quản lý bình luận/đánh giá");
+
         btnLogout = new JButton("Đăng xuất");
 
         sidebar.add(lblAppName, "growx, wrap");
         sidebar.add(btnDashboard, "growx, h 38!, wrap");
         sidebar.add(btnManageBooks, "growx, h 38!, wrap");
+        sidebar.add(btnManageGenres, "growx, h 38!, wrap");
         sidebar.add(btnManageUsers, "growx, h 38!, wrap");
         sidebar.add(btnManageReviews, "growx, h 38!, wrap");
         sidebar.add(btnLogout, "growx, h 38!");
@@ -103,6 +107,10 @@ public class AdminDashboardFrame extends JFrame {
 
         btnManageBooks.addActionListener(e -> {
             AdminBookManagementFrame frame = new AdminBookManagementFrame();
+            frame.setVisible(true);
+        });
+        btnManageGenres.addActionListener(e -> {
+            AdminGenreManagementFrame frame = new AdminGenreManagementFrame();
             frame.setVisible(true);
         });
 

@@ -254,3 +254,45 @@ VALUES
     NULL, NULL, NULL, 0, 0
 );
 GO
+
+USE BookReadingDB;
+GO
+
+SELECT 
+    b.idBook,
+    b.title,
+    b.author,
+    g.name AS genreName,
+    b.totalPages,
+    b.avgRating,
+    b.filePath,
+    b.fileType,
+    b.coverPath,
+    b.createdAt
+FROM Books b
+LEFT JOIN Genres g ON b.idGenre = g.idGenre
+ORDER BY b.idBook;
+
+--- file type ---
+USE BookReadingDB;
+GO
+
+ALTER TABLE Books DROP CONSTRAINT CK_Books_FileType;
+GO
+
+ALTER TABLE Books
+ADD CONSTRAINT CK_Books_FileType
+CHECK (fileType IN ('PDF', 'EPUB', 'TXT') OR fileType IS NULL);
+GO
+--- check ---
+SELECT name, definition
+FROM sys.check_constraints
+WHERE parent_object_id = OBJECT_ID('Books');
+
+--- test book file ---
+USE BookReadingDB;
+GO
+
+SELECT idBook, title, filePath, fileType
+FROM Books
+WHERE title LIKE N'Re:Zero - Arc 4';

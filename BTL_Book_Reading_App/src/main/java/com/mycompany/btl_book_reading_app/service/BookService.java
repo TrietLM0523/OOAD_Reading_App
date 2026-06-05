@@ -82,13 +82,22 @@ public class BookService {
         if (book.getFileType() != null
                 && !book.getFileType().isBlank()
                 && !book.getFileType().equalsIgnoreCase("PDF")
-                && !book.getFileType().equalsIgnoreCase("EPUB")) {
-            throw new Exception("Loại file chỉ được là PDF hoặc EPUB.");
+                && !book.getFileType().equalsIgnoreCase("EPUB")
+                && !book.getFileType().equalsIgnoreCase("TXT")) {
+            throw new Exception("Loại file chỉ được là PDF, EPUB hoặc TXT.");
         }
 
         if (book.getTotalPages() < 0) {
             throw new Exception("Số trang không được âm.");
         }
+    }
+
+    public Book getBookById(int idBook) throws Exception {
+        if (idBook <= 0) {
+            throw new Exception("ID sách không hợp lệ.");
+        }
+
+        return bookDAO.findById(idBook);
     }
 
 }

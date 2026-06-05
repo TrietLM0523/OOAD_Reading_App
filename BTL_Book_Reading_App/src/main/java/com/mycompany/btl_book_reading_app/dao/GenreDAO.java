@@ -101,4 +101,49 @@ public class GenreDAO {
         return genre;
     }
 
+    public boolean update(Genre genre) throws SQLException {
+        String sql = """
+            UPDATE Genres
+            SET name = ?, description = ?
+            WHERE idGenre = ?
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, genre.getName());
+            ps.setString(2, genre.getDescription());
+            ps.setInt(3, genre.getIdGenre());
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean deleteById(int idGenre) throws SQLException {
+        String sql = "DELETE FROM Genres WHERE idGenre = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idGenre);
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean existsByName(String name) throws SQLException {
+        String sql = "SELECT COUNT(*) AS total FROM Genres WHERE name = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, name);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total") > 0;
+                }
+            }
+        }
+
+        return false;
+    }
+
 }
