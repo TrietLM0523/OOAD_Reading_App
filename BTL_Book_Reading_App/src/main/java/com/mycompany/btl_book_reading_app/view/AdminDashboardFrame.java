@@ -5,6 +5,7 @@
 package com.mycompany.btl_book_reading_app.view;
 
 import com.mycompany.btl_book_reading_app.model.User;
+import com.mycompany.btl_book_reading_app.util.SessionManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -27,6 +28,16 @@ public class AdminDashboardFrame extends JFrame {
 
     public AdminDashboardFrame(User currentUser) {
         this.currentUser = currentUser;
+
+        if (currentUser == null || !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Bạn không có quyền truy cập màn hình quản trị.",
+                    "Không có quyền",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            throw new SecurityException("Access denied: Admin only.");
+        }
 
         initFrame();
         initComponents();
@@ -101,9 +112,10 @@ public class AdminDashboardFrame extends JFrame {
     }
 
     private void initEvents() {
-        btnDashboard.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Dashboard admin sẽ làm ở milestone sau.")
-        );
+        btnDashboard.addActionListener(e -> {
+            AdminStatisticsFrame frame = new AdminStatisticsFrame();
+            frame.setVisible(true);
+        });
 
         btnManageBooks.addActionListener(e -> {
             AdminBookManagementFrame frame = new AdminBookManagementFrame();
@@ -114,12 +126,13 @@ public class AdminDashboardFrame extends JFrame {
             frame.setVisible(true);
         });
 
-        btnManageUsers.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Quản lý người dùng sẽ làm ở milestone sau.")
-        );
+        btnManageUsers.addActionListener(e -> {
+            AdminUserManagementFrame frame = new AdminUserManagementFrame();
+            frame.setVisible(true);
+        });
 
         btnManageReviews.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Quản lý bình luận/đánh giá sẽ làm ở milestone sau.")
+                -> JOptionPane.showMessageDialog(this, "Chức năng quản lý đánh giá/nhận xét được đưa vào phần mở rộng.")
         );
 
         btnLogout.addActionListener(e -> handleLogout());
@@ -134,6 +147,7 @@ public class AdminDashboardFrame extends JFrame {
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
+            SessionManager.logout();
             new LoginFrame().setVisible(true);
             this.dispose();
         }

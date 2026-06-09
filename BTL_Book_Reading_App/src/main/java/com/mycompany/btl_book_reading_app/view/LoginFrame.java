@@ -6,6 +6,7 @@ package com.mycompany.btl_book_reading_app.view;
 
 import com.mycompany.btl_book_reading_app.model.User;
 import com.mycompany.btl_book_reading_app.service.AuthService;
+import com.mycompany.btl_book_reading_app.util.SessionManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -92,7 +93,7 @@ public class LoginFrame extends JFrame {
 
         try {
             User user = authService.login(email, password);
-
+            SessionManager.login(user);
             JOptionPane.showMessageDialog(
                     this,
                     "Đăng nhập thành công!\nXin chào " + user.getUsername(),

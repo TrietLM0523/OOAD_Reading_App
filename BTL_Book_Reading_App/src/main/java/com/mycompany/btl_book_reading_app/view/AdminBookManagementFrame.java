@@ -8,6 +8,7 @@ import com.mycompany.btl_book_reading_app.model.Book;
 import com.mycompany.btl_book_reading_app.model.Genre;
 import com.mycompany.btl_book_reading_app.service.BookService;
 import com.mycompany.btl_book_reading_app.util.FileStorageUtil;
+import com.mycompany.btl_book_reading_app.util.SessionManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -50,6 +51,16 @@ public class AdminBookManagementFrame extends JFrame {
     private String selectedFileType = null;
 
     public AdminBookManagementFrame() {
+        if (!SessionManager.isAdmin()) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Bạn không có quyền quản lý sách.",
+                    "Không có quyền",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            throw new SecurityException("Access denied: Admin only.");
+        }
+
         this.bookService = new BookService();
 
         initFrame();

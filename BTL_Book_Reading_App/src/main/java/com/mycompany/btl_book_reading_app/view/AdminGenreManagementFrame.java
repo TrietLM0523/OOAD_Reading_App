@@ -6,6 +6,7 @@ package com.mycompany.btl_book_reading_app.view;
 
 import com.mycompany.btl_book_reading_app.model.Genre;
 import com.mycompany.btl_book_reading_app.service.GenreService;
+import com.mycompany.btl_book_reading_app.util.SessionManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -33,6 +34,16 @@ public class AdminGenreManagementFrame extends JFrame {
     private JButton btnBack;
 
     public AdminGenreManagementFrame() {
+        if (!SessionManager.isAdmin()) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Bạn không có quyền quản lý thể loại.",
+                    "Không có quyền",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            throw new SecurityException("Access denied: Admin only.");
+        }
+
         this.genreService = new GenreService();
 
         initFrame();

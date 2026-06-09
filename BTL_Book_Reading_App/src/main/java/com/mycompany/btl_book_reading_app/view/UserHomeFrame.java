@@ -5,6 +5,7 @@
 package com.mycompany.btl_book_reading_app.view;
 
 import com.mycompany.btl_book_reading_app.model.User;
+import com.mycompany.btl_book_reading_app.util.SessionManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -101,24 +102,28 @@ public class UserHomeFrame extends JFrame {
     }
 
     private void initEvents() {
-        btnSearchBooks.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Chức năng tìm sách sẽ làm ở milestone sau.")
-        );
+        btnSearchBooks.addActionListener(e -> {
+            UserBookCatalogFrame frame = new UserBookCatalogFrame(currentUser);
+            frame.setVisible(true);
+        });
 
-        btnMyLibrary.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Chức năng thư viện cá nhân sẽ làm ở milestone sau.")
-        );
+        btnMyLibrary.addActionListener(e -> {
+            UserLibraryFrame frame = new UserLibraryFrame(currentUser);
+            frame.setVisible(true);
+        });
 
-        btnQuotes.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Chức năng trích dẫn sẽ làm ở milestone sau.")
-        );
+        btnQuotes.addActionListener(e -> {
+            MyQuotesFrame frame = new MyQuotesFrame(currentUser);
+            frame.setVisible(true);
+        });
 
-        btnStatistics.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Chức năng thống kê sẽ làm ở milestone sau.")
-        );
+        btnStatistics.addActionListener(e -> {
+            UserReadingStatisticsFrame frame = new UserReadingStatisticsFrame(currentUser);
+            frame.setVisible(true);
+        });
 
         btnProfile.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Chức năng tài khoản sẽ làm ở milestone sau.")
+                -> JOptionPane.showMessageDialog(this, "Chức năng tài khoản cá nhân sẽ được hoàn thiện ở giai đoạn sau.")
         );
 
         btnLogout.addActionListener(e -> handleLogout());
@@ -133,6 +138,7 @@ public class UserHomeFrame extends JFrame {
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
+            SessionManager.logout();
             new LoginFrame().setVisible(true);
             this.dispose();
         }

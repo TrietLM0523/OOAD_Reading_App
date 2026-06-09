@@ -9,6 +9,8 @@ import com.mycompany.btl_book_reading_app.model.User;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -130,5 +132,68 @@ public class UserDAO {
         }
 
         return user;
+    }
+
+    public List<User> findAll() throws SQLException {
+        List<User> users = new ArrayList<>();
+
+        String sql = """
+            SELECT idUser, username, email, passwordHash, phone, gender,
+                   avatarPath, role, status, createdAt
+            FROM Users
+            ORDER BY idUser
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
+            }
+        }
+
+        return users;
+    }
+
+    public List<User> searchByKeyword(String keyword) throws SQLException {
+        List<User> users = new ArrayList<>();
+
+        String sql = """
+            SELECT idUser, username, email, passwordHash, phone, gender,
+                   avatarPath, role, status, createdAt
+            FROM Users
+            WHERE username LIKE ? OR email LIKE ?
+            ORDER BY idUser
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            String pattern = "%" + keyword + "%";
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    users.add(mapResultSetToUser(rs));
+                }
+            }
+        }
+
+        return users;
+    }
+
+    public boolean updateStatus(int idUser, String status) throws SQLException {
+        String sql = """
+            UPDATE Users
+            SET status = ?
+            WHERE idUser = ?
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status);
+            ps.setInt(2, idUser);
+
+            return ps.executeUpdate() > 0;
+        }
     }
 }

@@ -296,3 +296,90 @@ GO
 SELECT idBook, title, filePath, fileType
 FROM Books
 WHERE title LIKE N'Re:Zero - Arc 4';
+--- test process ---
+USE BookReadingDB;
+GO
+
+SELECT 
+    rp.idReadingProcess,
+    b.title,
+    rp.currentPage,
+    rp.readingStatus,
+    rp.updatedAt
+FROM ReadingProcesses rp
+JOIN Books b ON rp.idBook = b.idBook
+ORDER BY rp.updatedAt DESC;
+
+--- test review & quote ---
+USE BookReadingDB;
+GO
+
+SELECT 
+    r.idReview,
+    u.email,
+    b.title,
+    r.rating,
+    r.reviewContent,
+    r.createdAt
+FROM Reviews r
+JOIN Users u ON r.idUser = u.idUser
+JOIN Books b ON r.idBook = b.idBook
+ORDER BY r.createdAt DESC;
+
+USE BookReadingDB;
+GO
+
+SELECT COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Reviews'
+ORDER BY ORDINAL_POSITION;
+
+--- test dashboard data ---
+USE BookReadingDB;
+GO
+
+SELECT COUNT(*) AS totalUsers FROM Users;
+SELECT COUNT(*) AS totalBooks FROM Books;
+SELECT COUNT(*) AS totalGenres FROM Genres;
+SELECT COUNT(*) AS totalReadingProcesses FROM ReadingProcesses;
+SELECT COUNT(*) AS totalReviews FROM Reviews;
+SELECT COUNT(*) AS totalQuotes FROM Quotes;
+
+SELECT readingStatus, COUNT(*) AS total
+FROM ReadingProcesses
+GROUP BY readingStatus;
+
+--- test user statistics ---
+USE BookReadingDB;
+GO
+
+DECLARE @email NVARCHAR(255) = 'testuser2@gmail.com';
+
+SELECT 
+    COUNT(*) AS totalLibraryBooks
+FROM ReadingProcesses rp
+JOIN Users u ON rp.idUser = u.idUser
+WHERE u.email = @email;
+
+SELECT 
+    COUNT(*) AS booksWithFile
+FROM ReadingProcesses rp
+JOIN Users u ON rp.idUser = u.idUser
+JOIN Books b ON rp.idBook = b.idBook
+WHERE u.email = @email
+  AND b.filePath IS NOT NULL
+  AND b.filePath <> '';
+
+SELECT 
+    ISNULL(SUM(rp.currentPage), 0) AS totalCurrentPages
+FROM ReadingProcesses rp
+JOIN Users u ON rp.idUser = u.idUser
+WHERE u.email = @email;
+
+SELECT 
+    rp.readingStatus,
+    COUNT(*) AS total
+FROM ReadingProcesses rp
+JOIN Users u ON rp.idUser = u.idUser
+WHERE u.email = @email
+GROUP BY rp.readingStatus;
