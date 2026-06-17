@@ -131,9 +131,10 @@ public class AdminDashboardFrame extends JFrame {
             frame.setVisible(true);
         });
 
-        btnManageReviews.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Chức năng quản lý đánh giá/nhận xét được đưa vào phần mở rộng.")
-        );
+        btnManageReviews.addActionListener(e -> {
+            AdminReviewManagementFrame frame = new AdminReviewManagementFrame();
+            frame.setVisible(true);
+        });
 
         btnLogout.addActionListener(e -> handleLogout());
     }

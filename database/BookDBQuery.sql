@@ -383,3 +383,19 @@ FROM ReadingProcesses rp
 JOIN Users u ON rp.idUser = u.idUser
 WHERE u.email = @email
 GROUP BY rp.readingStatus;
+
+USE BookReadingDB;
+GO
+
+SELECT 
+    r.idReview,
+    u.username,
+    u.email,
+    b.title,
+    r.rating,
+    r.reviewContent,
+    r.createdAt
+FROM Reviews r
+JOIN Users u ON r.idUser = u.idUser
+JOIN Books b ON r.idBook = b.idBook
+ORDER BY r.createdAt DESC;

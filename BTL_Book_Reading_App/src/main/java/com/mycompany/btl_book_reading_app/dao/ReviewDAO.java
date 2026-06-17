@@ -174,4 +174,72 @@ public class ReviewDAO {
 
         return review;
     }
+
+    public List<Review> findAll() throws SQLException {
+        List<Review> reviews = new ArrayList<>();
+
+        String sql = """
+            SELECT r.idReview, r.idUser, r.idBook, r.rating, r.reviewContent, r.createdAt,
+                   u.username, b.title AS bookTitle
+            FROM Reviews r
+            JOIN Users u ON r.idUser = u.idUser
+            JOIN Books b ON r.idBook = b.idBook
+            ORDER BY r.createdAt DESC
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                reviews.add(mapResultSetToReview(rs));
+            }
+        }
+
+        return reviews;
+    }
+
+    public List<Review> searchByKeyword(String keyword) throws SQLException {
+        List<Review> reviews = new ArrayList<>();
+
+        String sql = """
+            SELECT r.idReview, r.idUser, r.idBook, r.rating, r.reviewContent, r.createdAt,
+                   u.username, b.title AS bookTitle
+            FROM Reviews r
+            JOIN Users u ON r.idUser = u.idUser
+            JOIN Books b ON r.idBook = b.idBook
+            WHERE u.username LIKE ?
+               OR u.email LIKE ?
+               OR b.title LIKE ?
+               OR r.reviewContent LIKE ?
+            ORDER BY r.createdAt DESC
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            String pattern = "%" + keyword + "%";
+
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+            ps.setString(3, pattern);
+            ps.setString(4, pattern);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    reviews.add(mapResultSetToReview(rs));
+                }
+            }
+        }
+
+        return reviews;
+    }
+
+    public boolean deleteById(int idReview) throws SQLException {
+        String sql = "DELETE FROM Reviews WHERE idReview = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idReview);
+
+            return ps.executeUpdate() > 0;
+        }
+    }
 }
