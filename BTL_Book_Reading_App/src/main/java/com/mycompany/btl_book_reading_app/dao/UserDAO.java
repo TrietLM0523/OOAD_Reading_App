@@ -196,4 +196,43 @@ public class UserDAO {
             return ps.executeUpdate() > 0;
         }
     }
+
+
+    public boolean updateProfile(User user) throws SQLException {
+        String sql = """
+            UPDATE Users
+            SET username = ?,
+                phone = ?,
+                gender = ?,
+                avatarPath = ?
+            WHERE idUser = ?
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, user.getUsername());
+            ps.setString(2, user.getPhone());
+            ps.setString(3, user.getGender());
+            ps.setString(4, user.getAvatarPath());
+            ps.setInt(5, user.getIdUser());
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean updatePasswordHash(int idUser, String passwordHash) throws SQLException {
+        String sql = """
+            UPDATE Users
+            SET passwordHash = ?
+            WHERE idUser = ?
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, passwordHash);
+            ps.setInt(2, idUser);
+
+            return ps.executeUpdate() > 0;
+        }
+    }
 }

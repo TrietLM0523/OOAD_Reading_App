@@ -122,9 +122,10 @@ public class UserHomeFrame extends JFrame {
             frame.setVisible(true);
         });
 
-        btnProfile.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Chức năng tài khoản cá nhân sẽ được hoàn thiện ở giai đoạn sau.")
-        );
+        btnProfile.addActionListener(e -> {
+            UserProfileFrame frame = new UserProfileFrame(currentUser);
+            frame.setVisible(true);
+        });
 
         btnLogout.addActionListener(e -> handleLogout());
     }
