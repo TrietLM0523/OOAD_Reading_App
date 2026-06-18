@@ -25,6 +25,7 @@ public class UserHomeFrame extends JFrame {
     private JButton btnStatistics;
     private JButton btnProfile;
     private JButton btnLogout;
+    private JButton btnNotifications;
 
     public UserHomeFrame(User currentUser) {
         this.currentUser = currentUser;
@@ -61,6 +62,7 @@ public class UserHomeFrame extends JFrame {
         btnStatistics = new JButton("Thống kê");
         btnProfile = new JButton("Tài khoản");
         btnLogout = new JButton("Đăng xuất");
+        btnNotifications = new JButton("Thông báo");
 
         sidebar.add(lblAppName, "growx, wrap");
         sidebar.add(btnSearchBooks, "growx, h 38!, wrap");
@@ -69,6 +71,7 @@ public class UserHomeFrame extends JFrame {
         sidebar.add(btnStatistics, "growx, h 38!, wrap");
         sidebar.add(btnProfile, "growx, h 38!, wrap");
         sidebar.add(btnLogout, "growx, h 38!");
+        sidebar.add(btnNotifications, "growx, h 40!, wrap");
 
         JPanel content = new JPanel(new MigLayout(
                 "fill, insets 30",
@@ -124,6 +127,10 @@ public class UserHomeFrame extends JFrame {
 
         btnProfile.addActionListener(e -> {
             UserProfileFrame frame = new UserProfileFrame(currentUser);
+            frame.setVisible(true);
+        });
+        btnNotifications.addActionListener(e -> {
+            NotificationFrame frame = new NotificationFrame(currentUser);
             frame.setVisible(true);
         });
 

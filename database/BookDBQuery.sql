@@ -399,3 +399,21 @@ FROM Reviews r
 JOIN Users u ON r.idUser = u.idUser
 JOIN Books b ON r.idBook = b.idBook
 ORDER BY r.createdAt DESC;
+
+--- test notifications ---
+USE BookReadingDB;
+GO
+
+SELECT 
+    n.idNotification,
+    u.email,
+    b.title,
+    n.message,
+    n.remindTime,
+    n.repeatType,
+    n.notificationStatus,
+    n.createdAt
+FROM Notifications n
+JOIN Users u ON n.idUser = u.idUser
+JOIN Books b ON n.idBook = b.idBook
+ORDER BY n.createdAt DESC;

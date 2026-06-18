@@ -13,11 +13,17 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import com.mycompany.btl_book_reading_app.service.NotificationService;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class UserLibraryFrame extends JFrame {
 
     private final User currentUser;
     private final ReadingService readingService;
+    private final NotificationService notificationService;
+    private static final DateTimeFormatter NOTIFICATION_TIME_FORMATTER
+            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private Integer selectedReadingProcessId = null;
 
@@ -34,10 +40,12 @@ public class UserLibraryFrame extends JFrame {
     private JButton btnRemoveFromLibrary;
     private JButton btnReload;
     private JButton btnBack;
+    private JButton btnCreateNotification;
 
     public UserLibraryFrame(User currentUser) {
         this.currentUser = currentUser;
         this.readingService = new ReadingService();
+        this.notificationService = new NotificationService();
 
         initFrame();
         initComponents();
@@ -125,6 +133,7 @@ public class UserLibraryFrame extends JFrame {
         btnReview = new JButton("Đánh giá sách");
         btnQuote = new JButton("Trích dẫn");
         btnRemoveFromLibrary = new JButton("Xóa khỏi thư viện");
+        btnCreateNotification = new JButton("Tạo nhắc đọc");
 
         formPanel.add(lblForm, "span 2, growx, wrap");
 
@@ -138,6 +147,7 @@ public class UserLibraryFrame extends JFrame {
         formPanel.add(btnUpdateProgress, "span 2, growx, h 38!, wrap");
         formPanel.add(btnReview, "span 2, growx, h 38!, wrap");
         formPanel.add(btnQuote, "span 2, growx, h 38!, wrap");
+        formPanel.add(btnCreateNotification, "span 2, growx, h 38!, wrap");
         formPanel.add(btnRemoveFromLibrary, "span 2, growx, h 38!");
 
         root.add(topPanel, BorderLayout.NORTH);
@@ -161,6 +171,8 @@ public class UserLibraryFrame extends JFrame {
         btnUpdateProgress.addActionListener(e -> updateProgress());
 
         btnRemoveFromLibrary.addActionListener(e -> removeSelectedBookFromLibrary());
+
+        btnCreateNotification.addActionListener(e -> createReadingNotification());
 
         tblLibrary.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -387,5 +399,95 @@ public class UserLibraryFrame extends JFrame {
 
         QuoteFrame frame = new QuoteFrame(currentUser, idBook, title);
         frame.setVisible(true);
+    }
+
+    private void createReadingNotification() {
+        int selectedRow = tblLibrary.getSelectedRow();
+
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Vui lòng chọn một sách để tạo nhắc đọc.",
+                    "Chưa chọn sách",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        int idBook = (int) tableModel.getValueAt(selectedRow, 1);
+        String title = String.valueOf(tableModel.getValueAt(selectedRow, 2));
+
+        String message = JOptionPane.showInputDialog(
+                this,
+                "Nhập nội dung nhắc đọc cho sách:\n" + title,
+                "Nhắc đọc sách",
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (message == null || message.trim().isEmpty()) {
+            return;
+        }
+
+        String defaultTime = LocalDateTime.now()
+                .plusDays(1)
+                .withSecond(0)
+                .withNano(0)
+                .format(NOTIFICATION_TIME_FORMATTER);
+
+        String timeText = JOptionPane.showInputDialog(
+                this,
+                "Nhập thời gian nhắc theo định dạng yyyy-MM-dd HH:mm",
+                defaultTime
+        );
+
+        if (timeText == null || timeText.trim().isEmpty()) {
+            return;
+        }
+
+        Object[] repeatOptions = {"NONE", "DAILY", "WEEKLY", "MONTHLY"};
+
+        String repeatType = String.valueOf(JOptionPane.showInputDialog(
+                this,
+                "Chọn kiểu lặp:",
+                "Kiểu lặp",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                repeatOptions,
+                "NONE"
+        ));
+
+        if (repeatType == null || "null".equals(repeatType)) {
+            repeatType = "NONE";
+        }
+
+        try {
+            LocalDateTime remindTime = LocalDateTime.parse(
+                    timeText.trim(),
+                    NOTIFICATION_TIME_FORMATTER
+            );
+
+            notificationService.createNotification(
+                    currentUser.getIdUser(),
+                    idBook,
+                    message,
+                    remindTime,
+                    repeatType
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tạo nhắc đọc thành công.",
+                    "Thành công",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tạo nhắc đọc thất bại: " + e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }

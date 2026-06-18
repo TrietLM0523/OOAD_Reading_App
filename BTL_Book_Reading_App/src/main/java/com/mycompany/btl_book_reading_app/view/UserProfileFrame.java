@@ -8,6 +8,8 @@ import com.mycompany.btl_book_reading_app.model.User;
 import com.mycompany.btl_book_reading_app.service.UserProfileService;
 import com.mycompany.btl_book_reading_app.util.SessionManager;
 import net.miginfocom.swing.MigLayout;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +35,7 @@ public class UserProfileFrame extends JFrame {
     private JButton btnChangePassword;
     private JButton btnReload;
     private JButton btnBack;
+    private JButton btnChooseAvatar;
 
     public UserProfileFrame(User currentUser) {
         this.currentUser = currentUser;
@@ -46,7 +49,7 @@ public class UserProfileFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Tài khoản cá nhân - BTL Book Reading App");
-        setSize(820, 760);
+        setSize(850, 860);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -85,6 +88,7 @@ public class UserProfileFrame extends JFrame {
         txtPhone = new JTextField();
         cboGender = new JComboBox<>(new String[]{"", "MALE", "FEMALE", "OTHER"});
         txtAvatarPath = new JTextField();
+        btnChooseAvatar = new JButton("Chọn ảnh");
         txtRole = new JTextField();
         txtStatus = new JTextField();
 
@@ -117,8 +121,12 @@ public class UserProfileFrame extends JFrame {
         contentPanel.add(new JLabel("Giới tính:"), "");
         contentPanel.add(cboGender, "growx, h 35!, wrap");
 
+        JPanel avatarPanel = new JPanel(new BorderLayout(8, 0));
+        avatarPanel.add(txtAvatarPath, BorderLayout.CENTER);
+        avatarPanel.add(btnChooseAvatar, BorderLayout.EAST);
+
         contentPanel.add(new JLabel("Avatar path:"), "");
-        contentPanel.add(txtAvatarPath, "growx, h 35!, wrap");
+        contentPanel.add(avatarPanel, "growx, h 35!, wrap");
 
         contentPanel.add(new JLabel("Vai trò:"), "");
         contentPanel.add(txtRole, "growx, h 35!, wrap");
@@ -155,6 +163,8 @@ public class UserProfileFrame extends JFrame {
         btnSaveProfile.addActionListener(e -> saveProfile());
 
         btnChangePassword.addActionListener(e -> changePassword());
+
+        btnChooseAvatar.addActionListener(e -> chooseAvatarImage());
     }
 
     private void loadProfile() {
@@ -262,5 +272,23 @@ public class UserProfileFrame extends JFrame {
         txtOldPassword.setText("");
         txtNewPassword.setText("");
         txtConfirmPassword.setText("");
+    }
+
+    private void chooseAvatarImage() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Chọn ảnh đại diện");
+
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                "Image files (*.jpg, *.jpeg, *.png)",
+                "jpg", "jpeg", "png"
+        );
+        fileChooser.setFileFilter(filter);
+
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            txtAvatarPath.setText(selectedFile.getAbsolutePath());
+        }
     }
 }
