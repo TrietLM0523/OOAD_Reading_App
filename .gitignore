@@ -2,6 +2,8 @@
 # Java / Maven build output
 # =========================
 target/
+BTL_Book_Reading_App/target/
+
 *.class
 *.jar
 *.war
@@ -11,8 +13,13 @@ target/
 # NetBeans
 # =========================
 nbproject/private/
+BTL_Book_Reading_App/nbproject/private/
+
 build/
 dist/
+BTL_Book_Reading_App/build/
+BTL_Book_Reading_App/dist/
+
 *.nbattrs
 
 # =========================
@@ -20,7 +27,22 @@ dist/
 # =========================
 .env
 *.env
+*.local
+
+config.properties
+database.properties
 config.local.properties
+database.local.properties
+
+src/main/resources/config.properties
+src/main/resources/database.properties
+src/main/resources/config.local.properties
+src/main/resources/database.local.properties
+
+BTL_Book_Reading_App/src/main/resources/config.properties
+BTL_Book_Reading_App/src/main/resources/database.properties
+BTL_Book_Reading_App/src/main/resources/config.local.properties
+BTL_Book_Reading_App/src/main/resources/database.local.properties
 
 # =========================
 # App local storage
@@ -28,6 +50,7 @@ config.local.properties
 # =========================
 data/books/*
 data/covers/*
+
 BTL_Book_Reading_App/data/books/*
 BTL_Book_Reading_App/data/covers/*
 
@@ -41,6 +64,7 @@ BTL_Book_Reading_App/data/covers/*
 # =========================
 *.log
 logs/
+BTL_Book_Reading_App/logs/
 
 # =========================
 # IDE folders
@@ -54,10 +78,3 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
-# Local secrets
-.env
-*.local
-config.properties
-database.properties
-src/main/resources/config.properties
-src/main/resources/database.properties

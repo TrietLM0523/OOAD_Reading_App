@@ -7,6 +7,7 @@ package com.mycompany.btl_book_reading_app.view;
 import com.mycompany.btl_book_reading_app.model.Quote;
 import com.mycompany.btl_book_reading_app.model.User;
 import com.mycompany.btl_book_reading_app.service.QuoteService;
+import com.mycompany.btl_book_reading_app.util.UIColorPalette;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -41,7 +42,7 @@ public class MyQuotesFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Trích dẫn của tôi - BTL Book Reading App");
-        setSize(1000, 650);
+        setSize(1050, 680);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -49,19 +50,26 @@ public class MyQuotesFrame extends JFrame {
 
     private void initComponents() {
         JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(UIColorPalette.MAIN_BG);
 
         JPanel topPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[grow][][][]",
                 "[]"
         ));
+        topPanel.setBackground(UIColorPalette.MAIN_BG);
 
         JLabel lblTitle = new JLabel("Trích dẫn của tôi - " + currentUser.getUsername());
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setForeground(UIColorPalette.TEXT_MAIN);
 
         btnReload = new JButton("Tải lại");
         btnDelete = new JButton("Xóa trích dẫn");
         btnBack = new JButton("Quay lại");
+
+        styleSecondaryButton(btnReload);
+        styleDangerButton(btnDelete);
+        styleWarmButton(btnBack);
 
         topPanel.add(lblTitle, "growx");
         topPanel.add(btnReload, "h 35!");
@@ -79,41 +87,56 @@ public class MyQuotesFrame extends JFrame {
         };
 
         tblQuotes = new JTable(tableModel);
-        tblQuotes.setRowHeight(28);
         tblQuotes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        styleTable(tblQuotes);
 
         tblQuotes.getColumnModel().getColumn(0).setPreferredWidth(50);
         tblQuotes.getColumnModel().getColumn(1).setPreferredWidth(180);
         tblQuotes.getColumnModel().getColumn(2).setPreferredWidth(320);
         tblQuotes.getColumnModel().getColumn(3).setPreferredWidth(240);
-        tblQuotes.getColumnModel().getColumn(4).setPreferredWidth(140);
+        tblQuotes.getColumnModel().getColumn(4).setPreferredWidth(150);
+
+        JScrollPane tableScrollPane = new JScrollPane(tblQuotes);
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
+        tableScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
 
         JPanel detailPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[100!][grow]",
                 "[]10[]"
         ));
-        detailPanel.setPreferredSize(new Dimension(1000, 210));
-        detailPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết trích dẫn"));
+        detailPanel.setPreferredSize(new Dimension(1050, 220));
+        detailPanel.setBackground(UIColorPalette.CARD_BG);
+        detailPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColorPalette.BORDER),
+                BorderFactory.createTitledBorder("Chi tiết trích dẫn")
+        ));
+
+        JLabel lblQuote = createFormLabel("Trích dẫn:");
+        JLabel lblNote = createFormLabel("Ghi chú:");
 
         txtQuoteContent = new JTextArea(4, 30);
-        txtQuoteContent.setLineWrap(true);
-        txtQuoteContent.setWrapStyleWord(true);
+        styleTextArea(txtQuoteContent);
         txtQuoteContent.setEditable(false);
 
         txtNote = new JTextArea(3, 30);
-        txtNote.setLineWrap(true);
-        txtNote.setWrapStyleWord(true);
+        styleTextArea(txtNote);
         txtNote.setEditable(false);
 
-        detailPanel.add(new JLabel("Trích dẫn:"), "top");
-        detailPanel.add(new JScrollPane(txtQuoteContent), "growx, h 90!, wrap");
+        JScrollPane quoteScrollPane = new JScrollPane(txtQuoteContent);
+        quoteScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
 
-        detailPanel.add(new JLabel("Ghi chú:"), "top");
-        detailPanel.add(new JScrollPane(txtNote), "growx, h 70!");
+        JScrollPane noteScrollPane = new JScrollPane(txtNote);
+        noteScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
+
+        detailPanel.add(lblQuote, "top");
+        detailPanel.add(quoteScrollPane, "growx, h 90!, wrap");
+
+        detailPanel.add(lblNote, "top");
+        detailPanel.add(noteScrollPane, "growx, h 70!");
 
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(new JScrollPane(tblQuotes), BorderLayout.CENTER);
+        root.add(tableScrollPane, BorderLayout.CENTER);
         root.add(detailPanel, BorderLayout.SOUTH);
 
         setContentPane(root);
@@ -173,6 +196,9 @@ public class MyQuotesFrame extends JFrame {
 
         txtQuoteContent.setText(quoteContent != null ? String.valueOf(quoteContent) : "");
         txtNote.setText(note != null ? String.valueOf(note) : "");
+
+        txtQuoteContent.setCaretPosition(0);
+        txtNote.setCaretPosition(0);
     }
 
     private void deleteSelectedQuote() {
@@ -229,5 +255,59 @@ public class MyQuotesFrame extends JFrame {
         txtQuoteContent.setText("");
         txtNote.setText("");
         tblQuotes.clearSelection();
+    }
+
+    private JLabel createFormLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        label.setForeground(UIColorPalette.TEXT_MAIN);
+        return label;
+    }
+
+    private void styleTextArea(JTextArea textArea) {
+        textArea.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setForeground(UIColorPalette.TEXT_MAIN);
+        textArea.setBackground(new Color(250, 250, 250));
+    }
+
+    private void styleSecondaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.PINE_GREEN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleWarmButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.WOOD_BROWN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleDangerButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.TORII_ORANGE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(30);
+        table.setSelectionBackground(UIColorPalette.MIST_BLUE);
+        table.setSelectionForeground(UIColorPalette.TEXT_MAIN);
+        table.setGridColor(UIColorPalette.BORDER);
+
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(UIColorPalette.FOREST_DARK);
+        table.getTableHeader().setForeground(Color.WHITE);
     }
 }

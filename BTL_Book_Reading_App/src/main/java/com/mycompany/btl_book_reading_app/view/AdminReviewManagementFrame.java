@@ -7,6 +7,7 @@ package com.mycompany.btl_book_reading_app.view;
 import com.mycompany.btl_book_reading_app.model.Review;
 import com.mycompany.btl_book_reading_app.service.ReviewManagementService;
 import com.mycompany.btl_book_reading_app.util.SessionManager;
+import com.mycompany.btl_book_reading_app.util.UIColorPalette;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -50,7 +51,7 @@ public class AdminReviewManagementFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Quản lý đánh giá - BTL Book Reading App");
-        setSize(1050, 680);
+        setSize(1100, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -58,21 +59,34 @@ public class AdminReviewManagementFrame extends JFrame {
 
     private void initComponents() {
         JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(UIColorPalette.MAIN_BG);
 
         JPanel topPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[][grow][][][]",
                 "[]"
         ));
+        topPanel.setBackground(UIColorPalette.MAIN_BG);
+
+        JLabel lblKeyword = new JLabel("Từ khóa:");
+        lblKeyword.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblKeyword.setForeground(UIColorPalette.TEXT_MAIN);
 
         txtSearch = new JTextField();
+        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
         btnSearch = new JButton("Tìm kiếm");
         btnReload = new JButton("Tải lại");
         btnDelete = new JButton("Xóa đánh giá");
         btnBack = new JButton("Quay lại");
 
-        topPanel.add(new JLabel("Từ khóa:"), "");
-        topPanel.add(txtSearch, "growx");
+        stylePrimaryButton(btnSearch);
+        styleSecondaryButton(btnReload);
+        styleDangerButton(btnDelete);
+        styleWarmButton(btnBack);
+
+        topPanel.add(lblKeyword, "");
+        topPanel.add(txtSearch, "growx, h 35!");
         topPanel.add(btnSearch, "h 35!");
         topPanel.add(btnReload, "h 35!");
         topPanel.add(btnDelete, "h 35!");
@@ -91,8 +105,8 @@ public class AdminReviewManagementFrame extends JFrame {
         };
 
         tblReviews = new JTable(tableModel);
-        tblReviews.setRowHeight(28);
         tblReviews.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        styleTable(tblReviews);
 
         tblReviews.getColumnModel().getColumn(0).setPreferredWidth(50);
         tblReviews.getColumnModel().getColumn(1).setPreferredWidth(140);
@@ -101,24 +115,42 @@ public class AdminReviewManagementFrame extends JFrame {
         tblReviews.getColumnModel().getColumn(4).setPreferredWidth(360);
         tblReviews.getColumnModel().getColumn(5).setPreferredWidth(160);
 
+        JScrollPane tableScrollPane = new JScrollPane(tblReviews);
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
+        tableScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
+
         JPanel detailPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[100!][grow]",
                 "[]"
         ));
-        detailPanel.setPreferredSize(new Dimension(1050, 160));
-        detailPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết nội dung đánh giá"));
+        detailPanel.setPreferredSize(new Dimension(1100, 165));
+        detailPanel.setBackground(UIColorPalette.CARD_BG);
+        detailPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColorPalette.BORDER),
+                BorderFactory.createTitledBorder("Chi tiết nội dung đánh giá")
+        ));
+
+        JLabel lblDetail = new JLabel("Nội dung:");
+        lblDetail.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblDetail.setForeground(UIColorPalette.TEXT_MAIN);
 
         txtReviewDetail = new JTextArea(4, 30);
+        txtReviewDetail.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtReviewDetail.setLineWrap(true);
         txtReviewDetail.setWrapStyleWord(true);
         txtReviewDetail.setEditable(false);
+        txtReviewDetail.setBackground(new Color(250, 250, 250));
+        txtReviewDetail.setForeground(UIColorPalette.TEXT_MAIN);
 
-        detailPanel.add(new JLabel("Nội dung:"), "top");
-        detailPanel.add(new JScrollPane(txtReviewDetail), "growx, h 100!");
+        JScrollPane detailScrollPane = new JScrollPane(txtReviewDetail);
+        detailScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
+
+        detailPanel.add(lblDetail, "top");
+        detailPanel.add(detailScrollPane, "growx, h 100!");
 
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(new JScrollPane(tblReviews), BorderLayout.CENTER);
+        root.add(tableScrollPane, BorderLayout.CENTER);
         root.add(detailPanel, BorderLayout.SOUTH);
 
         setContentPane(root);
@@ -198,6 +230,7 @@ public class AdminReviewManagementFrame extends JFrame {
 
         Object content = tableModel.getValueAt(selectedRow, 4);
         txtReviewDetail.setText(content != null ? String.valueOf(content) : "");
+        txtReviewDetail.setCaretPosition(0);
     }
 
     private void deleteSelectedReview() {
@@ -257,5 +290,53 @@ public class AdminReviewManagementFrame extends JFrame {
     private void clearDetail() {
         txtReviewDetail.setText("");
         tblReviews.clearSelection();
+    }
+
+    private void stylePrimaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.LAKE_BLUE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleSecondaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.PINE_GREEN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleWarmButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.WOOD_BROWN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleDangerButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.TORII_ORANGE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(30);
+        table.setSelectionBackground(UIColorPalette.MIST_BLUE);
+        table.setSelectionForeground(UIColorPalette.TEXT_MAIN);
+        table.setGridColor(UIColorPalette.BORDER);
+
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(UIColorPalette.FOREST_DARK);
+        table.getTableHeader().setForeground(Color.WHITE);
     }
 }

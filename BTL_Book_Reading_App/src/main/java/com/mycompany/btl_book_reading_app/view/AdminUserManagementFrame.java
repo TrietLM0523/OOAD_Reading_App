@@ -7,6 +7,7 @@ package com.mycompany.btl_book_reading_app.view;
 import com.mycompany.btl_book_reading_app.model.User;
 import com.mycompany.btl_book_reading_app.service.UserManagementService;
 import com.mycompany.btl_book_reading_app.util.SessionManager;
+import com.mycompany.btl_book_reading_app.util.UIColorPalette;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -49,7 +50,7 @@ public class AdminUserManagementFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Quản lý người dùng - BTL Book Reading App");
-        setSize(1000, 620);
+        setSize(1100, 680);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -57,22 +58,36 @@ public class AdminUserManagementFrame extends JFrame {
 
     private void initComponents() {
         JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(UIColorPalette.MAIN_BG);
 
         JPanel topPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[][grow][][][][]",
                 "[]"
         ));
+        topPanel.setBackground(UIColorPalette.MAIN_BG);
+
+        JLabel lblKeyword = new JLabel("Từ khóa:");
+        lblKeyword.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblKeyword.setForeground(UIColorPalette.TEXT_MAIN);
 
         txtSearch = new JTextField();
+        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
         btnSearch = new JButton("Tìm kiếm");
         btnReload = new JButton("Tải lại");
         btnLock = new JButton("Khóa tài khoản");
         btnUnlock = new JButton("Mở khóa");
         btnBack = new JButton("Quay lại");
 
-        topPanel.add(new JLabel("Từ khóa:"), "");
-        topPanel.add(txtSearch, "growx");
+        stylePrimaryButton(btnSearch);
+        styleSecondaryButton(btnReload);
+        styleDangerButton(btnLock);
+        styleSecondaryButton(btnUnlock);
+        styleWarmButton(btnBack);
+
+        topPanel.add(lblKeyword, "");
+        topPanel.add(txtSearch, "growx, h 35!");
         topPanel.add(btnSearch, "h 35!");
         topPanel.add(btnReload, "h 35!");
         topPanel.add(btnLock, "h 35!");
@@ -92,20 +107,24 @@ public class AdminUserManagementFrame extends JFrame {
         };
 
         tblUsers = new JTable(tableModel);
-        tblUsers.setRowHeight(28);
         tblUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        styleTable(tblUsers);
 
         tblUsers.getColumnModel().getColumn(0).setPreferredWidth(50);
         tblUsers.getColumnModel().getColumn(1).setPreferredWidth(150);
-        tblUsers.getColumnModel().getColumn(2).setPreferredWidth(220);
+        tblUsers.getColumnModel().getColumn(2).setPreferredWidth(240);
         tblUsers.getColumnModel().getColumn(3).setPreferredWidth(120);
         tblUsers.getColumnModel().getColumn(4).setPreferredWidth(90);
         tblUsers.getColumnModel().getColumn(5).setPreferredWidth(80);
         tblUsers.getColumnModel().getColumn(6).setPreferredWidth(90);
-        tblUsers.getColumnModel().getColumn(7).setPreferredWidth(160);
+        tblUsers.getColumnModel().getColumn(7).setPreferredWidth(170);
+
+        JScrollPane tableScrollPane = new JScrollPane(tblUsers);
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
+        tableScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
 
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(new JScrollPane(tblUsers), BorderLayout.CENTER);
+        root.add(tableScrollPane, BorderLayout.CENTER);
 
         setContentPane(root);
     }
@@ -273,5 +292,53 @@ public class AdminUserManagementFrame extends JFrame {
                     JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    private void stylePrimaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.LAKE_BLUE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleSecondaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.PINE_GREEN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleWarmButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.WOOD_BROWN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleDangerButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.TORII_ORANGE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(30);
+        table.setSelectionBackground(UIColorPalette.MIST_BLUE);
+        table.setSelectionForeground(UIColorPalette.TEXT_MAIN);
+        table.setGridColor(UIColorPalette.BORDER);
+
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(UIColorPalette.FOREST_DARK);
+        table.getTableHeader().setForeground(Color.WHITE);
     }
 }

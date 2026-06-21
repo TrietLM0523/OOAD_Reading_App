@@ -7,6 +7,7 @@ package com.mycompany.btl_book_reading_app.view;
 import com.mycompany.btl_book_reading_app.model.Notification;
 import com.mycompany.btl_book_reading_app.model.User;
 import com.mycompany.btl_book_reading_app.service.NotificationService;
+import com.mycompany.btl_book_reading_app.util.UIColorPalette;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -41,7 +42,7 @@ public class NotificationFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Thông báo - BTL Book Reading App");
-        setSize(1050, 650);
+        setSize(1100, 680);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -49,21 +50,30 @@ public class NotificationFrame extends JFrame {
 
     private void initComponents() {
         JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(UIColorPalette.MAIN_BG);
 
         JPanel topPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[grow][][][][]",
                 "[]"
         ));
+        topPanel.setBackground(UIColorPalette.MAIN_BG);
 
         JLabel lblTitle = new JLabel("Thông báo của tôi - " + currentUser.getUsername());
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setForeground(UIColorPalette.TEXT_MAIN);
 
         btnReload = new JButton("Tất cả");
         btnDueOnly = new JButton("Đến hạn");
         btnMarkAsRead = new JButton("Đánh dấu đã đọc");
         btnDelete = new JButton("Xóa");
         btnBack = new JButton("Quay lại");
+
+        stylePrimaryButton(btnReload);
+        styleSecondaryButton(btnDueOnly);
+        styleSecondaryButton(btnMarkAsRead);
+        styleDangerButton(btnDelete);
+        styleWarmButton(btnBack);
 
         topPanel.add(lblTitle, "growx");
         topPanel.add(btnReload, "h 35!");
@@ -85,8 +95,8 @@ public class NotificationFrame extends JFrame {
         };
 
         tblNotifications = new JTable(tableModel);
-        tblNotifications.setRowHeight(28);
         tblNotifications.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        styleTable(tblNotifications);
 
         tblNotifications.getColumnModel().getColumn(0).setPreferredWidth(50);
         tblNotifications.getColumnModel().getColumn(1).setPreferredWidth(180);
@@ -96,24 +106,42 @@ public class NotificationFrame extends JFrame {
         tblNotifications.getColumnModel().getColumn(5).setPreferredWidth(90);
         tblNotifications.getColumnModel().getColumn(6).setPreferredWidth(160);
 
+        JScrollPane tableScrollPane = new JScrollPane(tblNotifications);
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
+        tableScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
+
         JPanel detailPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[100!][grow]",
                 "[]"
         ));
-        detailPanel.setPreferredSize(new Dimension(1050, 150));
-        detailPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết thông báo"));
+        detailPanel.setPreferredSize(new Dimension(1100, 155));
+        detailPanel.setBackground(UIColorPalette.CARD_BG);
+        detailPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColorPalette.BORDER),
+                BorderFactory.createTitledBorder("Chi tiết thông báo")
+        ));
+
+        JLabel lblDetail = new JLabel("Nội dung:");
+        lblDetail.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblDetail.setForeground(UIColorPalette.TEXT_MAIN);
 
         txtMessageDetail = new JTextArea(4, 30);
+        txtMessageDetail.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtMessageDetail.setLineWrap(true);
         txtMessageDetail.setWrapStyleWord(true);
         txtMessageDetail.setEditable(false);
+        txtMessageDetail.setBackground(new Color(250, 250, 250));
+        txtMessageDetail.setForeground(UIColorPalette.TEXT_MAIN);
 
-        detailPanel.add(new JLabel("Nội dung:"), "top");
-        detailPanel.add(new JScrollPane(txtMessageDetail), "growx, h 95!");
+        JScrollPane detailScrollPane = new JScrollPane(txtMessageDetail);
+        detailScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
+
+        detailPanel.add(lblDetail, "top");
+        detailPanel.add(detailScrollPane, "growx, h 95!");
 
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(new JScrollPane(tblNotifications), BorderLayout.CENTER);
+        root.add(tableScrollPane, BorderLayout.CENTER);
         root.add(detailPanel, BorderLayout.SOUTH);
 
         setContentPane(root);
@@ -198,6 +226,7 @@ public class NotificationFrame extends JFrame {
 
         Object message = tableModel.getValueAt(selectedRow, 2);
         txtMessageDetail.setText(message != null ? String.valueOf(message) : "");
+        txtMessageDetail.setCaretPosition(0);
     }
 
     private void markSelectedAsRead() {
@@ -298,5 +327,53 @@ public class NotificationFrame extends JFrame {
     private void clearDetail() {
         txtMessageDetail.setText("");
         tblNotifications.clearSelection();
+    }
+
+    private void stylePrimaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.LAKE_BLUE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleSecondaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.PINE_GREEN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleWarmButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.WOOD_BROWN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleDangerButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.TORII_ORANGE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(30);
+        table.setSelectionBackground(UIColorPalette.MIST_BLUE);
+        table.setSelectionForeground(UIColorPalette.TEXT_MAIN);
+        table.setGridColor(UIColorPalette.BORDER);
+
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(UIColorPalette.FOREST_DARK);
+        table.getTableHeader().setForeground(Color.WHITE);
     }
 }

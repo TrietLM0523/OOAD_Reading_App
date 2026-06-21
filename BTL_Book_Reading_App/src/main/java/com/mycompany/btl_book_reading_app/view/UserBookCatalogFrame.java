@@ -8,6 +8,7 @@ import com.mycompany.btl_book_reading_app.model.Book;
 import com.mycompany.btl_book_reading_app.model.User;
 import com.mycompany.btl_book_reading_app.service.BookService;
 import com.mycompany.btl_book_reading_app.service.ReadingService;
+import com.mycompany.btl_book_reading_app.util.UIColorPalette;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -43,7 +44,7 @@ public class UserBookCatalogFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Tra cứu sách - BTL Book Reading App");
-        setSize(1000, 620);
+        setSize(1050, 660);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -51,21 +52,34 @@ public class UserBookCatalogFrame extends JFrame {
 
     private void initComponents() {
         JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(UIColorPalette.MAIN_BG);
 
         JPanel topPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[][grow][][][]",
                 "[]"
         ));
+        topPanel.setBackground(UIColorPalette.MAIN_BG);
+
+        JLabel lblKeyword = new JLabel("Từ khóa:");
+        lblKeyword.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblKeyword.setForeground(UIColorPalette.TEXT_MAIN);
 
         txtSearch = new JTextField();
+        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
         btnSearch = new JButton("Tìm kiếm");
         btnReload = new JButton("Tải lại");
         btnAddToLibrary = new JButton("Thêm vào thư viện");
         btnBack = new JButton("Quay lại");
 
-        topPanel.add(new JLabel("Từ khóa:"), "");
-        topPanel.add(txtSearch, "growx");
+        stylePrimaryButton(btnSearch);
+        styleSecondaryButton(btnReload);
+        stylePrimaryButton(btnAddToLibrary);
+        styleWarmButton(btnBack);
+
+        topPanel.add(lblKeyword, "");
+        topPanel.add(txtSearch, "growx, h 35!");
         topPanel.add(btnSearch, "h 35!");
         topPanel.add(btnReload, "h 35!");
         topPanel.add(btnAddToLibrary, "h 35!");
@@ -82,20 +96,53 @@ public class UserBookCatalogFrame extends JFrame {
         };
 
         tblBooks = new JTable(tableModel);
-        tblBooks.setRowHeight(28);
         tblBooks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        styleTable(tblBooks);
 
         tblBooks.getColumnModel().getColumn(0).setPreferredWidth(50);
-        tblBooks.getColumnModel().getColumn(1).setPreferredWidth(260);
-        tblBooks.getColumnModel().getColumn(2).setPreferredWidth(170);
-        tblBooks.getColumnModel().getColumn(3).setPreferredWidth(160);
+        tblBooks.getColumnModel().getColumn(1).setPreferredWidth(280);
+        tblBooks.getColumnModel().getColumn(2).setPreferredWidth(180);
+        tblBooks.getColumnModel().getColumn(3).setPreferredWidth(170);
         tblBooks.getColumnModel().getColumn(4).setPreferredWidth(80);
-        tblBooks.getColumnModel().getColumn(5).setPreferredWidth(80);
+        tblBooks.getColumnModel().getColumn(5).setPreferredWidth(90);
+
+        JScrollPane tableScrollPane = new JScrollPane(tblBooks);
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
+        tableScrollPane.setBorder(BorderFactory.createLineBorder(UIColorPalette.BORDER));
+
+        JPanel infoPanel = createInfoPanel();
 
         root.add(topPanel, BorderLayout.NORTH);
-        root.add(new JScrollPane(tblBooks), BorderLayout.CENTER);
+        root.add(tableScrollPane, BorderLayout.CENTER);
+        root.add(infoPanel, BorderLayout.SOUTH);
 
         setContentPane(root);
+    }
+
+    private JPanel createInfoPanel() {
+        JPanel panel = new JPanel(new MigLayout(
+                "fillx, insets 14",
+                "[grow]",
+                "[]"
+        ));
+        panel.setBackground(UIColorPalette.CARD_BG);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColorPalette.BORDER),
+                BorderFactory.createEmptyBorder(4, 4, 4, 4)
+        ));
+
+        JLabel lblInfo = new JLabel(
+                "<html>"
+                + "Chọn một sách trong danh sách rồi bấm <b>Thêm vào thư viện</b> "
+                + "để bắt đầu theo dõi tiến trình đọc."
+                + "</html>"
+        );
+        lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblInfo.setForeground(UIColorPalette.TEXT_SUB);
+
+        panel.add(lblInfo, "growx");
+
+        return panel;
     }
 
     private void initEvents() {
@@ -189,5 +236,44 @@ public class UserBookCatalogFrame extends JFrame {
                     JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    private void stylePrimaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.LAKE_BLUE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleSecondaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.PINE_GREEN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleWarmButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.WOOD_BROWN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(30);
+        table.setSelectionBackground(UIColorPalette.MIST_BLUE);
+        table.setSelectionForeground(UIColorPalette.TEXT_MAIN);
+        table.setGridColor(UIColorPalette.BORDER);
+
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(UIColorPalette.FOREST_DARK);
+        table.getTableHeader().setForeground(Color.WHITE);
     }
 }

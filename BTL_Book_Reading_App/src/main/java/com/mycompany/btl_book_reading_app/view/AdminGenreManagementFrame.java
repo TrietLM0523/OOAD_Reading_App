@@ -7,6 +7,7 @@ package com.mycompany.btl_book_reading_app.view;
 import com.mycompany.btl_book_reading_app.model.Genre;
 import com.mycompany.btl_book_reading_app.service.GenreService;
 import com.mycompany.btl_book_reading_app.util.SessionManager;
+import com.mycompany.btl_book_reading_app.util.UIColorPalette;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -54,7 +55,7 @@ public class AdminGenreManagementFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Quản lý thể loại - BTL Book Reading App");
-        setSize(850, 550);
+        setSize(950, 650);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -62,15 +63,16 @@ public class AdminGenreManagementFrame extends JFrame {
 
     private void initComponents() {
         JPanel root = new JPanel(new BorderLayout());
-
+        root.setBackground(UIColorPalette.MAIN_BG);
         JPanel topPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[grow][][]",
                 "[]"
         ));
-
+        topPanel.setBackground(UIColorPalette.MAIN_BG);
         JLabel lblTitle = new JLabel("Quản lý thể loại");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setForeground(UIColorPalette.TEXT_MAIN);
 
         btnReload = new JButton("Tải lại");
         btnBack = new JButton("Quay lại");
@@ -90,6 +92,7 @@ public class AdminGenreManagementFrame extends JFrame {
         };
 
         tblGenres = new JTable(tableModel);
+        styleTable(tblGenres);
         tblGenres.setRowHeight(28);
         tblGenres.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -105,7 +108,7 @@ public class AdminGenreManagementFrame extends JFrame {
                 "[]10[]10[]20[]10[]10[]"
         ));
         formPanel.setPreferredSize(new Dimension(330, 550));
-
+        styleCardPanel(formPanel);
         JLabel lblForm = new JLabel("Thông tin thể loại");
         lblForm.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
@@ -120,6 +123,15 @@ public class AdminGenreManagementFrame extends JFrame {
         btnDelete = new JButton("Xóa thể loại");
         btnClear = new JButton("Làm mới form");
 
+        stylePrimaryButton(btnAdd);
+        stylePrimaryButton(btnUpdate);
+
+        styleSecondaryButton(btnReload);
+
+        styleWarmButton(btnClear);
+        styleWarmButton(btnBack);
+
+        styleDangerButton(btnDelete);
         formPanel.add(lblForm, "span 2, growx, wrap");
 
         formPanel.add(new JLabel("Tên:"), "");
@@ -327,5 +339,61 @@ public class AdminGenreManagementFrame extends JFrame {
 
         tblGenres.clearSelection();
         txtName.requestFocus();
+    }
+
+    private void stylePrimaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.LAKE_BLUE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleSecondaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.PINE_GREEN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleWarmButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.WOOD_BROWN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleDangerButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.TORII_ORANGE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(30);
+        table.setSelectionBackground(UIColorPalette.MIST_BLUE);
+        table.setSelectionForeground(UIColorPalette.TEXT_MAIN);
+        table.setGridColor(UIColorPalette.BORDER);
+
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(UIColorPalette.FOREST_DARK);
+        table.getTableHeader().setForeground(Color.WHITE);
+    }
+
+    private void styleCardPanel(JPanel panel) {
+        panel.setBackground(UIColorPalette.CARD_BG);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColorPalette.BORDER),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
     }
 }
