@@ -7,6 +7,7 @@ package com.mycompany.btl_book_reading_app.view;
 import com.mycompany.btl_book_reading_app.model.ReadingProcess;
 import com.mycompany.btl_book_reading_app.model.User;
 import com.mycompany.btl_book_reading_app.service.ReadingService;
+import com.mycompany.btl_book_reading_app.util.UIColorPalette;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -55,7 +56,7 @@ public class UserLibraryFrame extends JFrame {
 
     private void initFrame() {
         setTitle("Thư viện của tôi - BTL Book Reading App");
-        setSize(1100, 700);
+        setSize(1150, 720);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -63,16 +64,17 @@ public class UserLibraryFrame extends JFrame {
 
     private void initComponents() {
         JPanel root = new JPanel(new BorderLayout());
-
+        root.setBackground(UIColorPalette.MAIN_BG);
         JPanel topPanel = new JPanel(new MigLayout(
                 "fillx, insets 15",
                 "[grow][][]",
                 "[]"
         ));
-
+        topPanel.setBackground(UIColorPalette.MAIN_BG);
+        styleCardPanel(topPanel);
         JLabel lblTitle = new JLabel("Thư viện của tôi - " + currentUser.getUsername());
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
-
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblTitle.setForeground(UIColorPalette.TEXT_MAIN);
         btnReload = new JButton("Tải lại");
         btnBack = new JButton("Quay lại");
 
@@ -94,7 +96,7 @@ public class UserLibraryFrame extends JFrame {
         };
 
         tblLibrary = new JTable(tableModel);
-        tblLibrary.setRowHeight(28);
+        styleTable(tblLibrary);
         tblLibrary.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         tblLibrary.getColumnModel().getColumn(0).setPreferredWidth(80);
@@ -114,6 +116,8 @@ public class UserLibraryFrame extends JFrame {
                 "[120!][grow]",
                 "[]10[]10[]20[]10[]10[]"
         ));
+        formPanel.setBackground(UIColorPalette.CARD_BG);
+        styleCardPanel(formPanel);
         formPanel.setPreferredSize(new Dimension(340, 700));
 
         JLabel lblForm = new JLabel("Tiến trình đọc");
@@ -134,7 +138,19 @@ public class UserLibraryFrame extends JFrame {
         btnQuote = new JButton("Trích dẫn");
         btnRemoveFromLibrary = new JButton("Xóa khỏi thư viện");
         btnCreateNotification = new JButton("Tạo nhắc đọc");
+        stylePrimaryButton(btnOpenBook);
 
+        stylePrimaryButton(btnUpdateProgress);
+
+        styleSecondaryButton(btnReview);
+
+        styleSecondaryButton(btnQuote);
+
+        styleSecondaryButton(btnCreateNotification);
+
+        styleWarmButton(btnBack);
+
+        styleDangerButton(btnRemoveFromLibrary);
         formPanel.add(lblForm, "span 2, growx, wrap");
 
         formPanel.add(new JLabel("Trang hiện tại:"), "");
@@ -489,5 +505,61 @@ public class UserLibraryFrame extends JFrame {
                     JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    private void stylePrimaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.LAKE_BLUE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleSecondaryButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.PINE_GREEN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleWarmButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.WOOD_BROWN);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleDangerButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        button.setBackground(UIColorPalette.TORII_ORANGE);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(30);
+        table.setSelectionBackground(UIColorPalette.MIST_BLUE);
+        table.setSelectionForeground(UIColorPalette.TEXT_MAIN);
+        table.setGridColor(UIColorPalette.BORDER);
+
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        table.getTableHeader().setBackground(UIColorPalette.FOREST_DARK);
+        table.getTableHeader().setForeground(Color.WHITE);
+    }
+
+    private void styleCardPanel(JPanel panel) {
+        panel.setBackground(UIColorPalette.CARD_BG);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIColorPalette.BORDER),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
     }
 }

@@ -10,21 +10,17 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
-    private static final String SERVER = "localhost";
-    private static final String PORT = "1433";
-    private static final String DATABASE_NAME = "BookReadingDB";
-
-    // Sửa theo tài khoản SQL Server của fen
-    private static final String USERNAME = "sa";
-    private static final String PASSWORD = "LE.minhtriet2005!";
-
-    private static final String URL =
-            "jdbc:sqlserver://" + SERVER + ":" + PORT + ";"
-            + "databaseName=" + DATABASE_NAME + ";"
-            + "encrypt=true;"
-            + "trustServerCertificate=true;";
+    private static final String DB_URL = System.getenv("BOOK_DB_URL");
+    private static final String DB_USER = System.getenv("BOOK_DB_USER");
+    private static final String DB_PASSWORD = System.getenv("BOOK_DB_PASSWORD");
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+        if (DB_URL == null || DB_USER == null || DB_PASSWORD == null) {
+            throw new SQLException(
+                    "Thiếu biến môi trường BOOK_DB_URL / BOOK_DB_USER / BOOK_DB_PASSWORD."
+            );
+        }
+
+        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 }

@@ -54,3 +54,10 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
+# Local secrets
+.env
+*.local
+config.properties
+database.properties
+src/main/resources/config.properties
+src/main/resources/database.properties
